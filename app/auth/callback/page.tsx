@@ -27,9 +27,10 @@ export default function AuthCallback() {
   }, [])
 
   return (
-    <div className="max-w-md mx-auto h-screen flex flex-col items-center justify-center bg-[#F8F7FF] gap-3">
-      <div className="w-10 h-10 border-4 border-[#7C3AED] border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-[#7C3AED] font-bold text-sm">กำลังเข้าสู่ระบบ...</p>
+    <div className="max-w-md mx-auto h-screen flex flex-col items-center justify-center bg-white gap-4">
+      <img src="/logo.png" alt="Home Keep Up" className="w-20 h-20 object-contain mb-2" />
+      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-blue-600 font-bold text-sm">กำลังเข้าสู่ระบบ...</p>
     </div>
   )
 }
