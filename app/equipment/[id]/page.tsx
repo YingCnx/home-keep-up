@@ -104,8 +104,8 @@ export default function EquipmentLogPage() {
     <div className="max-w-md mx-auto min-h-screen bg-white pb-24 font-sans text-slate-900">
       <PageHeader title={equipment?.name || 'Equipment'}
         rightElement={
-          <button onClick={() => setIsEditEqModalOpen(true)} className="w-9 h-9 flex items-center justify-center rounded-xl active:bg-slate-50 transition-all">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <button onClick={() => setIsEditEqModalOpen(true)} className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/20 active:bg-white/30 transition-all">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
           </button>
