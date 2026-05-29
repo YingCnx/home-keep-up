@@ -12,7 +12,8 @@ export default function EditAssetPage() {
   const { id } = useParams()
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
-  const [type, setType] = useState<'home' | 'car' | 'motorcycle'>('home')
+  const [type, setType] = useState<'home' | 'vehicle'>('home')
+  const [vehicleType, setVehicleType] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '', asset_number: '', purchase_price: '',
     area_size: '', mileage_at_purchase: '', note: ''
@@ -33,6 +34,7 @@ export default function EditAssetPage() {
           note: data.note || ''
         })
         setType(data.type)
+        setVehicleType(data.vehicle_type || null)
         setImageUrl(data.image_url || null)
       }
       setLoading(false)
@@ -97,7 +99,7 @@ export default function EditAssetPage() {
             </div>
           ) : (
             <label className="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl h-28 flex flex-col items-center justify-center gap-2 cursor-pointer active:bg-slate-100 transition-all">
-              <span className="text-2xl">{type === 'home' ? '🏠' : type === 'car' ? '🚗' : '🏍️'}</span>
+              <span className="text-2xl">{type === 'home' ? '🏠' : vehicleType === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}</span>
               <span className="text-slate-400 text-xs font-medium">กดเพื่อเพิ่มรูป</span>
               <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
             </label>
@@ -106,8 +108,8 @@ export default function EditAssetPage() {
 
         {/* Type (locked) */}
         <div className="bg-slate-50 rounded-2xl px-4 py-3 flex items-center gap-3 border border-slate-100">
-          <span className="text-xl">{type === 'home' ? '🏠' : type === 'car' ? '🚗' : '🏍️'}</span>
-          <span className="text-slate-500 font-medium text-sm">{type === 'home' ? 'Property' : type === 'car' ? 'Car' : 'Motorcycle'}</span>
+          <span className="text-xl">{type === 'home' ? '🏠' : vehicleType === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}</span>
+          <span className="text-slate-500 font-medium text-sm">{type === 'home' ? 'Property' : vehicleType || 'รถ'}</span>
         </div>
 
         <form onSubmit={handleUpdate} className="space-y-4">

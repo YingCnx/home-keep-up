@@ -8,7 +8,7 @@ import PageHeader from '../components/PageHeader'
 export default function AddAssetPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [type, setType] = useState<'home' | 'car' | 'motorcycle'>('home')
+  const [selector, setSelector] = useState<'home' | 'car' | 'motorcycle'>('home')
   const [formData, setFormData] = useState({
     name: '', asset_number: '', purchase_price: '',
     area_size: '', mileage_at_purchase: '', note: ''
@@ -18,12 +18,14 @@ export default function AddAssetPage() {
     e.preventDefault()
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
+    const assetType = selector === 'home' ? 'home' : 'vehicle'
+    const vehicleType = selector === 'car' ? 'รถยนต์' : selector === 'motorcycle' ? 'มอเตอร์ไซค์' : null
     const { error } = await supabase.from('assets').insert([{
-      name: formData.name, type,
+      name: formData.name, type: assetType, vehicle_type: vehicleType,
       asset_number: formData.asset_number,
       purchase_price: parseFloat(formData.purchase_price) || 0,
-      area_size: type === 'home' ? formData.area_size : null,
-      mileage_at_purchase: type !== 'home' ? parseInt(formData.mileage_at_purchase) : null,
+      area_size: selector === 'home' ? formData.area_size : null,
+      mileage_at_purchase: selector !== 'home' ? parseInt(formData.mileage_at_purchase) : null,
       note: formData.note,
       user_id: user?.id
     }])
@@ -46,8 +48,8 @@ export default function AddAssetPage() {
             { id: 'car', label: 'รถยนต์', icon: '🚗' },
             { id: 'motorcycle', label: 'มอไซค์', icon: '🏍️' }
           ].map(item => (
-            <button key={item.id} type="button" onClick={() => setType(item.id as any)}
-              className={`flex-1 py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-0.5 transition-all ${type === item.id ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}`}>
+            <button key={item.id} type="button" onClick={() => setSelector(item.id as any)}
+              className={`flex-1 py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-0.5 transition-all ${selector === item.id ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}`}>
               <span className="text-base">{item.icon}</span>
               <span>{item.label}</span>
             </button>
@@ -57,25 +59,25 @@ export default function AddAssetPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">ชื่อ</label>
-            <input className={inputClass} placeholder={type === 'home' ? 'ชื่อบ้าน/คอนโด' : 'แบรนด์/รุ่น'}
+            <input className={inputClass} placeholder={selector === 'home' ? 'ชื่อบ้าน/คอนโด' : 'แบรนด์/รุ่น'}
               value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">
-                {type === 'home' ? 'บ้านเลขที่' : 'ทะเบียน'}
+                {selector === 'home' ? 'บ้านเลขที่' : 'ทะเบียน'}
               </label>
-              <input className={inputClass} placeholder={type === 'home' ? '123/45' : 'กข 1234'}
+              <input className={inputClass} placeholder={selector === 'home' ? '123/45' : 'กข 1234'}
                 value={formData.asset_number} onChange={e => setFormData({...formData, asset_number: e.target.value})} />
             </div>
             <div>
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">
-                {type === 'home' ? 'พื้นที่' : 'เลขไมล์'}
+                {selector === 'home' ? 'พื้นที่' : 'เลขไมล์'}
               </label>
-              <input className={inputClass} placeholder={type === 'home' ? 'ตร.ม.' : 'กม.'}
-                value={type === 'home' ? formData.area_size : formData.mileage_at_purchase}
-                onChange={e => type === 'home' ? setFormData({...formData, area_size: e.target.value}) : setFormData({...formData, mileage_at_purchase: e.target.value})} />
+              <input className={inputClass} placeholder={selector === 'home' ? 'ตร.ม.' : 'กม.'}
+                value={selector === 'home' ? formData.area_size : formData.mileage_at_purchase}
+                onChange={e => selector === 'home' ? setFormData({...formData, area_size: e.target.value}) : setFormData({...formData, mileage_at_purchase: e.target.value})} />
             </div>
           </div>
 

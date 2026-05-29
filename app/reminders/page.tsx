@@ -189,7 +189,7 @@ export default function RemindersPage() {
                 const isOverdue = days < 0
                 const isUrgent = days >= 0 && days <= 7
                 const asset = task.equipments?.spaces?.assets
-                const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
+                const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'
                 return (
                   <div key={task.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
                     {/* Info Row */}
@@ -245,7 +245,7 @@ export default function RemindersPage() {
             <div className="space-y-3">
               {allLogs.map(log => {
                 const asset = log.equipments?.spaces?.assets
-                const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
+                const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'
                 return (
                   <div key={log.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
                     <div className="flex items-center gap-2 mb-2">

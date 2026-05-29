@@ -101,8 +101,8 @@ export default function ExportPage() {
   )
 
   const totalCost = logs.reduce((sum, l) => sum + (l.cost || 0), 0)
-  const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
-  const assetTypeLabel = asset?.type === 'home' ? 'Property' : asset?.type === 'motorcycle' ? 'Motorcycle' : 'Car'
+  const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'
+  const assetTypeLabel = asset?.type === 'home' ? 'Property' : asset?.vehicle_type || 'Vehicle'
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans">

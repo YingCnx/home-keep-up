@@ -118,8 +118,8 @@ export default function ReportsPage() {
           <div className="space-y-3">
             {assetData.map((asset, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${asset.type === 'home' ? 'bg-orange-50' : asset.type === 'motorcycle' ? 'bg-green-50' : 'bg-blue-50'}`}>
-                  {asset.type === 'home' ? '🏠' : asset.type === 'motorcycle' ? '🏍️' : '🚗'}
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${asset.type === 'home' ? 'bg-orange-50' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50' : 'bg-blue-50'}`}>
+                  {asset.type === 'home' ? '🏠' : asset.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between mb-1">

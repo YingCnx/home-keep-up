@@ -119,7 +119,7 @@ export default function AssetDetailPage() {
           {asset?.image_url
             ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
             : <div className="w-full h-full flex items-center justify-center text-2xl">
-                {asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'}
+                {asset?.type === 'home' ? '🏠' : asset?.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}
               </div>
           }
         </div>

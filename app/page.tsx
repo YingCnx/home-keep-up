@@ -40,13 +40,13 @@ export default function Dashboard() {
 
     const { data: overdueData } = await supabase
       .from('maintenance_logs')
-      .select(`id, detail, next_service_date, equipments (name, spaces (asset_id, assets(name, type, image_url)))`)
+      .select(`id, detail, next_service_date, equipments (name, spaces (asset_id, assets(name, type, vehicle_type, image_url)))`)
       .not('next_service_date', 'is', null)
       .lt('next_service_date', today)
 
     const { data: urgentData } = await supabase
       .from('maintenance_logs')
-      .select(`id, detail, next_service_date, equipments (name, spaces (asset_id, assets(name, type, image_url)))`)
+      .select(`id, detail, next_service_date, equipments (name, spaces (asset_id, assets(name, type, vehicle_type, image_url)))`)
       .not('next_service_date', 'is', null)
       .gte('next_service_date', today)
       .lte('next_service_date', in7days)
@@ -62,7 +62,7 @@ export default function Dashboard() {
       const tasksWithAssetName = upcomingData?.map(task => {
         const asset = assetsData.find(a => a.id === (task.equipments as any)?.spaces?.asset_id)
         const isOverdue = task.next_service_date < today
-        return { ...task, asset_name: asset?.name || 'Asset', asset_image: asset?.image_url || null, asset_type: asset?.type, isOverdue }
+        return { ...task, asset_name: asset?.name || 'Asset', asset_image: asset?.image_url || null, asset_type: asset?.type, asset_vehicle_type: asset?.vehicle_type, isOverdue }
       })
       setAssets(assetsWithTotal)
       setUpcomingTasks(tasksWithAssetName || [])
@@ -138,7 +138,7 @@ export default function Dashboard() {
                     upcomingTasks.map(task => {
                       const days = getDaysLeft(task.next_service_date)
                       const isOverdue = task.isOverdue
-                      const assetEmoji = task.asset_type === 'home' ? '🏠' : task.asset_type === 'motorcycle' ? '🏍️' : '🚗'
+                      const assetEmoji = task.asset_type === 'home' ? '🏠' : task.asset_vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'
                       return (
                         <div key={task.id} className="flex items-center gap-3 px-4 py-3">
                           <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0">
@@ -282,8 +282,8 @@ export default function Dashboard() {
                   <div className="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100">
                     {asset.image_url
                       ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
-                      : <div className={`w-full h-full flex items-center justify-center text-2xl ${asset.type === 'home' ? 'bg-orange-50' : asset.type === 'motorcycle' ? 'bg-green-50' : 'bg-blue-50'}`}>
-                          {asset.type === 'home' ? '🏠' : asset.type === 'motorcycle' ? '🏍️' : '🚗'}
+                      : <div className={`w-full h-full flex items-center justify-center text-2xl ${asset.type === 'home' ? 'bg-orange-50' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50' : 'bg-blue-50'}`}>
+                          {asset.type === 'home' ? '🏠' : asset.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}
                         </div>
                     }
                   </div>
@@ -293,8 +293,8 @@ export default function Dashboard() {
                     <p className="text-blue-600 font-bold text-sm mt-1">฿{asset.total_cost.toLocaleString()}</p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${asset.type === 'home' ? 'bg-orange-50 text-orange-500' : asset.type === 'motorcycle' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
-                      {asset.type === 'home' ? 'Property' : asset.type === 'motorcycle' ? 'Motorcycle' : 'Car'}
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${asset.type === 'home' ? 'bg-orange-50 text-orange-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
+                      {asset.type === 'home' ? 'Property' : asset.vehicle_type || 'รถ'}
                     </span>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
