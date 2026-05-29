@@ -13,22 +13,33 @@ function getDaysLeft(dateStr: string) {
 
 export default function RemindersPage() {
   const [tasks, setTasks] = useState<any[]>([])
+  const [allLogs, setAllLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [notifStatus, setNotifStatus] = useState<'default'|'granted'|'denied'>('default')
   const [filter, setFilter] = useState<'all'|'urgent'|'overdue'>('all')
+  const [activeTab, setActiveTab] = useState<'reminders'|'history'>('reminders')
 
   useEffect(() => {
     if ('Notification' in window) setNotifStatus(Notification.permission as any)
-    fetchReminders()
+    fetchData()
   }, [])
 
-  const fetchReminders = async () => {
-    const { data } = await supabase
+  const fetchData = async () => {
+    // ดึง reminders (มี next_service_date)
+    const { data: remindersData } = await supabase
       .from('maintenance_logs')
       .select('*, equipments(name, spaces(name, assets(name, type)))')
       .not('next_service_date', 'is', null)
       .order('next_service_date', { ascending: true })
-    setTasks(data || [])
+
+    // ดึง history ทั้งหมด
+    const { data: logsData } = await supabase
+      .from('maintenance_logs')
+      .select('*, equipments(name, spaces(name, assets(name, type)))')
+      .order('service_date', { ascending: false })
+
+    setTasks(remindersData || [])
+    setAllLogs(logsData || [])
     setLoading(false)
   }
 
@@ -51,6 +62,7 @@ export default function RemindersPage() {
 
   const overdue = tasks.filter(t => getDaysLeft(t.next_service_date) < 0).length
   const urgent = tasks.filter(t => { const d = getDaysLeft(t.next_service_date); return d >= 0 && d <= 7 }).length
+  const totalCost = allLogs.reduce((sum, log) => sum + (log.cost || 0), 0)
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-slate-50">
@@ -65,91 +77,165 @@ export default function RemindersPage() {
 
       <div className="px-5 pt-5">
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-3 gap-3 mb-5">
-          <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-slate-100">
-            <p className="text-2xl font-bold text-slate-800">{tasks.length}</p>
-            <p className="text-[10px] font-medium text-slate-400 mt-0.5">ทั้งหมด</p>
-          </div>
-          <div className="bg-red-50 rounded-2xl p-4 text-center shadow-sm">
-            <p className="text-2xl font-bold text-red-500">{overdue}</p>
-            <p className="text-[10px] font-medium text-red-400 mt-0.5">เลยกำหนด</p>
-          </div>
-          <div className="bg-amber-50 rounded-2xl p-4 text-center shadow-sm">
-            <p className="text-2xl font-bold text-amber-500">{urgent}</p>
-            <p className="text-[10px] font-medium text-amber-400 mt-0.5">ด่วน 7 วัน</p>
-          </div>
-        </div>
-
-        {/* Notification Banner */}
-        {notifStatus === 'default' && (
-          <button onClick={requestNotification}
-            className="w-full mb-5 bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 shadow-md active:scale-95 transition-all">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🔔</div>
-            <div className="text-left flex-1">
-              <p className="font-bold text-sm">เปิดการแจ้งเตือน</p>
-              <p className="text-blue-200 text-[11px]">รับแจ้งเตือนเมื่อใกล้ถึงกำหนด</p>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        {/* Tab Selector */}
+        <div className="flex gap-2 mb-5">
+          <button onClick={() => setActiveTab('reminders')}
+            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'reminders' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+            แจ้งเตือน
           </button>
-        )}
-        {notifStatus === 'granted' && (
-          <div className="w-full mb-5 bg-green-50 border border-green-100 rounded-2xl p-4 flex items-center gap-3">
-            <span className="text-xl">✅</span>
-            <p className="text-green-700 font-bold text-sm">เปิดการแจ้งเตือนแล้ว</p>
-          </div>
-        )}
-
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-4">
-          {[{key:'all',label:'ทั้งหมด'},{key:'overdue',label:'เลยกำหนด'},{key:'urgent',label:'ด่วน'}].map(tab => (
-            <button key={tab.key} onClick={() => setFilter(tab.key as any)}
-              className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${filter === tab.key ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
-              {tab.label}
-            </button>
-          ))}
+          <button onClick={() => setActiveTab('history')}
+            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'history' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+            ประวัติทั้งหมด
+          </button>
         </div>
 
-        {/* Task List */}
-        <div className="space-y-3">
-          {filtered.map(task => {
-            const days = getDaysLeft(task.next_service_date)
-            const isOverdue = days < 0
-            const isUrgent = days >= 0 && days <= 7
-            const asset = task.equipments?.spaces?.assets
-            const assetIcon = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
-
-            return (
-              <div key={task.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                <div className="flex items-start gap-3">
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${isOverdue ? 'bg-red-50' : isUrgent ? 'bg-amber-50' : 'bg-blue-50'}`}>
-                    {assetIcon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] text-slate-400 font-medium mb-0.5">{asset?.name} · {task.equipments?.spaces?.name}</p>
-                    <p className="text-slate-800 font-bold text-sm">{task.detail}</p>
-                    <p className="text-slate-400 text-[11px] mt-0.5">@ {task.equipments?.name}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${isOverdue ? 'bg-red-50 text-red-500' : isUrgent ? 'bg-amber-50 text-amber-500' : 'bg-blue-50 text-blue-500'}`}>
-                      {isOverdue ? `เลย ${Math.abs(days)}d` : days === 0 ? 'วันนี้!' : `${days}d`}
-                    </span>
-                    <p className="text-[10px] text-slate-400">
-                      {new Date(task.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
-                    </p>
-                  </div>
-                </div>
+        {/* ---- TAB: REMINDERS ---- */}
+        {activeTab === 'reminders' && (
+          <>
+            {/* Summary Cards */}
+            <div className="grid grid-cols-3 gap-3 mb-5">
+              <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-slate-100">
+                <p className="text-2xl font-bold text-slate-800">{tasks.length}</p>
+                <p className="text-[10px] font-medium text-slate-400 mt-0.5">ทั้งหมด</p>
               </div>
-            )
-          })}
-
-          {filtered.length === 0 && (
-            <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200">
-              <p className="text-4xl mb-3">🎉</p>
-              <p className="text-slate-400 font-bold">ไม่มีรายการที่ต้องดูแล</p>
+              <div className="bg-red-50 rounded-2xl p-4 text-center shadow-sm">
+                <p className="text-2xl font-bold text-red-500">{overdue}</p>
+                <p className="text-[10px] font-medium text-red-400 mt-0.5">เลยกำหนด</p>
+              </div>
+              <div className="bg-amber-50 rounded-2xl p-4 text-center shadow-sm">
+                <p className="text-2xl font-bold text-amber-500">{urgent}</p>
+                <p className="text-[10px] font-medium text-amber-400 mt-0.5">ด่วน 7 วัน</p>
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* Notification Banner */}
+            {notifStatus === 'default' && (
+              <button onClick={requestNotification}
+                className="w-full mb-5 bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 shadow-md active:scale-95 transition-all">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🔔</div>
+                <div className="text-left flex-1">
+                  <p className="font-bold text-sm">เปิดการแจ้งเตือน</p>
+                  <p className="text-blue-200 text-[11px]">รับแจ้งเตือนเมื่อใกล้ถึงกำหนด</p>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            )}
+            {notifStatus === 'granted' && (
+              <div className="w-full mb-5 bg-green-50 border border-green-100 rounded-2xl p-4 flex items-center gap-3">
+                <span className="text-xl">✅</span>
+                <p className="text-green-700 font-bold text-sm">เปิดการแจ้งเตือนแล้ว</p>
+              </div>
+            )}
+
+            {/* Filter Tabs */}
+            <div className="flex gap-2 mb-4">
+              {[{key:'all',label:'ทั้งหมด'},{key:'overdue',label:'เลยกำหนด'},{key:'urgent',label:'ด่วน'}].map(tab => (
+                <button key={tab.key} onClick={() => setFilter(tab.key as any)}
+                  className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${filter === tab.key ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Task List */}
+            <div className="space-y-3">
+              {filtered.map(task => {
+                const days = getDaysLeft(task.next_service_date)
+                const isOverdue = days < 0
+                const isUrgent = days >= 0 && days <= 7
+                const asset = task.equipments?.spaces?.assets
+                const assetIcon = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
+                return (
+                  <div key={task.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                    <div className="flex items-start gap-3">
+                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${isOverdue ? 'bg-red-50' : isUrgent ? 'bg-amber-50' : 'bg-blue-50'}`}>
+                        {assetIcon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] text-slate-400 font-medium mb-0.5">{asset?.name} · {task.equipments?.spaces?.name}</p>
+                        <p className="text-slate-800 font-bold text-sm">{task.detail}</p>
+                        <p className="text-slate-400 text-[11px] mt-0.5">@ {task.equipments?.name}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${isOverdue ? 'bg-red-50 text-red-500' : isUrgent ? 'bg-amber-50 text-amber-500' : 'bg-blue-50 text-blue-500'}`}>
+                          {isOverdue ? `เลย ${Math.abs(days)}d` : days === 0 ? 'วันนี้!' : `${days}d`}
+                        </span>
+                        <p className="text-[10px] text-slate-400">
+                          {new Date(task.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+              {filtered.length === 0 && (
+                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200">
+                  <p className="text-4xl mb-3">🎉</p>
+                  <p className="text-slate-400 font-bold">ไม่มีรายการที่ต้องดูแล</p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ---- TAB: HISTORY ---- */}
+        {activeTab === 'history' && (
+          <>
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-slate-500 text-sm font-medium">{allLogs.length} รายการ</p>
+              <p className="text-blue-600 font-bold text-sm">฿{totalCost.toLocaleString()}</p>
+            </div>
+
+            <div className="space-y-3">
+              {allLogs.map(log => {
+                const asset = log.equipments?.spaces?.assets
+                const assetIcon = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
+                return (
+                  <div key={log.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                    {/* Asset + Space + Equipment */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-base">{assetIcon}</span>
+                      <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">{asset?.name}</span>
+                      <span className="text-slate-300 text-xs">›</span>
+                      <span className="text-slate-500 text-[11px] font-medium">{log.equipments?.spaces?.name}</span>
+                      <span className="text-slate-300 text-xs">›</span>
+                      <span className="text-slate-500 text-[11px]">{log.equipments?.name}</span>
+                    </div>
+                    {/* Detail + Cost */}
+                    <div className="flex justify-between items-start mb-3">
+                      <p className="text-slate-800 font-bold text-sm flex-1 pr-3">{log.detail}</p>
+                      <p className="text-blue-600 font-bold text-sm">฿{(log.cost || 0).toLocaleString()}</p>
+                    </div>
+                    {/* Date + Brand + Next */}
+                    <div className="flex justify-between items-center pt-3 border-t border-slate-50">
+                      <div className="flex items-center gap-2">
+                        <p className="text-slate-400 text-[11px]">{new Date(log.service_date).toLocaleDateString('th-TH')}</p>
+                        {log.brand && (
+                          <span className="bg-blue-50 text-blue-500 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-blue-100">{log.brand}</span>
+                        )}
+                      </div>
+                      {log.next_service_date && (
+                        <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
+                          <span className="text-[10px]">⏳</span>
+                          <p className="text-amber-500 text-[11px] font-bold">
+                            Next: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+              {allLogs.length === 0 && (
+                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200">
+                  <p className="text-4xl mb-3">📋</p>
+                  <p className="text-slate-400 font-bold">ยังไม่มีประวัติการบำรุงรักษา</p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
       </div>
 
       <BottomNav />
