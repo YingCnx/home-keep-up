@@ -93,9 +93,9 @@ export default function RemindersPage() {
     // ล้าง next_service_date ของ log เก่า
     await supabase.from('maintenance_logs').update({ next_service_date: null }).eq('id', logModal.id)
 
+    await fetchData()
     setSaving(false)
     closeLogModal()
-    fetchData()
   }
 
   const filtered = tasks.filter(task => {
