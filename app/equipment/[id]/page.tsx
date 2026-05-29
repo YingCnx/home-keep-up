@@ -1,0 +1,245 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+import { useParams, useRouter } from 'next/navigation'
+
+export default function EquipmentLogPage() {
+  const { id } = useParams()
+  const router = useRouter()
+  const [equipment, setEquipment] = useState<any>(null)
+  const [logs, setLogs] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // --- Modal States ---
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false)
+  const [isEditEqModalOpen, setIsEditEqModalOpen] = useState(false)
+
+  // --- Form States ---
+  const [detail, setDetail] = useState('')
+  const [cost, setCost] = useState('')
+  const [serviceDate, setServiceDate] = useState(new Date().toISOString().split('T')[0])
+  const [nextServiceDate, setNextServiceDate] = useState('')
+  const [logBrand, setLogBrand] = useState('')
+  const [editName, setEditName] = useState('')
+  const [editBrand, setEditBrand] = useState('')
+
+  const fetchData = async () => {
+    const { data: eqData } = await supabase.from('equipments').select('*, spaces(name)').eq('id', id).single()
+    const { data: logsData } = await supabase.from('maintenance_logs').select('*').eq('equipment_id', id).order('service_date', { ascending: false })
+    
+    setEquipment(eqData)
+    setEditName(eqData?.name || '')
+    setEditBrand(eqData?.brand || '')
+    setLogs(logsData || [])
+    setLoading(false)
+  }
+
+  useEffect(() => { fetchData() }, [id])
+
+  const handleUpdateEquipment = async () => {
+    await supabase.from('equipments').update({ name: editName, brand: editBrand }).eq('id', id)
+    setIsEditEqModalOpen(false); fetchData();
+  }
+
+  const handleDeleteLog = async (logId: string) => {
+    if (!confirm('ยืนยันการลบรายการนี้?')) return
+    await supabase.from('maintenance_logs').delete().eq('id', logId)
+    fetchData()
+  }
+
+  const handleAddLog = async () => {
+    if (!detail) return alert('กรุณาระบุรายละเอียด')
+    await supabase.from('maintenance_logs').insert([{
+      equipment_id: id,
+      detail,
+      brand: logBrand || equipment?.brand || null,
+      cost: parseFloat(cost) || 0,
+      service_date: serviceDate,
+      next_service_date: nextServiceDate || null
+    }])
+    if (logBrand) await supabase.from('equipments').update({ brand: logBrand }).eq('id', id)
+    setDetail(''); setCost(''); setNextServiceDate(''); setLogBrand(''); setIsLogModalOpen(false); fetchData()
+
+  }
+
+  if (loading) return (
+    <div className="max-w-md mx-auto h-screen flex items-center justify-center bg-[#F8F7FF]">
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-10 h-10 border-4 border-[#7C3AED] border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-[#7C3AED] font-bold text-sm">กำลังโหลดประวัติ...</p>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="max-w-md mx-auto min-h-screen bg-[#F8F7FF] pb-32 font-sans shadow-2xl shadow-purple-100 text-slate-900">
+      {/* Top Nav */}
+      <nav className="sticky top-0 z-20 bg-[#F8F7FF] p-6 pb-4 flex justify-between items-center">
+        <div>
+          <p className="text-[#7C3AED] text-sm font-bold uppercase tracking-widest opacity-80">Welcome back,</p>
+          <h1 className="text-2xl font-bold text-slate-800">คุณภู (Phu)</h1>
+        </div>
+        <div className="w-12 h-12 bg-white rounded-2xl shadow-md flex items-center justify-center border-2 border-purple-100 overflow-hidden active:scale-90 transition-all">
+          <span className="text-xl">🤵🏻‍♂️</span>
+        </div>
+      </nav>
+
+
+      {/* Header - กระชับสไตล์ Template ใหม่ */}
+      <div className="bg-[#7C3AED] h-48 rounded-b-[3rem] p-8 text-white relative overflow-hidden shadow-lg">
+        <div className="flex justify-between items-start relative z-10 mb-4">
+          <button onClick={() => router.back()} className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-xl active:scale-90 transition-all">←</button>
+          <div className="flex gap-2">
+            <button onClick={() => setIsEditEqModalOpen(true)} className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-sm active:scale-90 transition-all">✎</button>
+          </div>
+        </div>
+        <div className="relative z-10">
+          <h1 className="text-2xl font-black tracking-tight leading-tight">{equipment?.name}</h1>
+          <p className="text-white/70 text-[11px] font-bold uppercase tracking-widest mt-1">
+            {equipment?.spaces?.name} {equipment?.brand && `| ${equipment?.brand}`}
+          </p>
+        </div>
+        <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="px-6 mt-8">
+        {/* รายงานยอดรวม */}
+        <div className="flex justify-between items-end mb-8 bg-white p-5 rounded-[2rem] shadow-sm border border-white">
+          <div>
+            <h2 className="text-base font-bold text-slate-800">Service History</h2>
+            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tighter">Maintenance Records</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter mb-1">Total Spent</p>
+            <p className="text-xl font-black text-[#7C3AED] leading-none tabular-nums">฿{logs.reduce((sum, l) => sum + (l.cost || 0), 0).toLocaleString()}</p>
+          </div>
+        </div>
+
+        {/* Timeline - ปรับปรุงสไตล์ตามคำขอคุณภู */}
+        <div className="space-y-5 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-purple-100">
+          {logs.map(log => (
+            <div key={log.id} className="relative pl-10 group">
+              {/* จุด Timeline */}
+              <div className="absolute left-[17px] top-3 w-2 h-2 bg-[#7C3AED] rounded-full border-2 border-white shadow-sm z-10"></div>
+              
+              <div className="bg-white rounded-[2.2rem] p-5 shadow-sm border border-white active:scale-[0.98] transition-all overflow-hidden relative">
+                <div className="flex justify-between items-start mb-2 relative z-10">
+                  <div className="flex-1 pr-4">
+                    <h4 className="font-bold text-slate-800 text-[15px] leading-tight">{log.detail}</h4>
+                    {log.brand && (
+                      <span className="inline-block mt-1.5 bg-purple-50 text-[#7C3AED] text-[10px] font-black px-2.5 py-1 rounded-lg border border-purple-100 uppercase tracking-wider">
+                        {log.brand}
+                      </span>
+                    )}
+                  </div>
+                  <button onClick={() => handleDeleteLog(log.id)} className="text-slate-200 hover:text-red-400 p-1 transition-colors">✕</button>
+                </div>
+                
+                <div className="flex justify-between items-end mt-3 pt-3 border-t border-slate-50 relative z-10">
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-purple-200"></span>
+                      <p className="text-[11px] text-slate-400 font-bold">
+                        {new Date(log.service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                    </div>
+                    {log.next_service_date && (
+                      <div className="inline-flex items-center gap-1 bg-red-50 px-2 py-0.5 rounded-lg">
+                        <span className="text-[10px] animate-pulse">⏳</span>
+                        <p className="text-[11px] font-bold text-red-400 uppercase tracking-tighter">
+                          Next: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <p className="font-black text-[#7C3AED] text-lg tabular-nums italic">฿{log.cost.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {logs.length === 0 && (
+            <div className="text-center py-20 bg-white/50 border-2 border-dashed border-purple-200 rounded-[2.5rem] italic text-purple-300 font-bold">
+              ยังไม่มีประวัติการดูแล
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Floating Add Button */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30">
+        <button 
+          onClick={() => setIsLogModalOpen(true)}
+          className="w-16 h-16 bg-[#7C3AED] rounded-full flex items-center justify-center text-white text-4xl shadow-xl shadow-purple-200 active:scale-90 transition-all border-4 border-white"
+        >+</button>
+      </div>
+
+      {/* Modal: แก้ไขข้อมูลอุปกรณ์ */}
+      {isEditEqModalOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6 z-50 text-slate-900">
+          <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-xs shadow-2xl">
+            <h3 className="text-lg font-black text-slate-800 mb-6 text-center italic uppercase tracking-widest underline decoration-purple-100 underline-offset-8">Edit Info</h3>
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Equipment Name</label>
+                <input className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-bold text-sm shadow-inner border-2 border-transparent focus:border-purple-200 transition-all" value={editName} onChange={e => setEditName(e.target.value)} placeholder="ชื่ออุปกรณ์" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Brand / Model</label>
+                <input className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-medium text-sm shadow-inner border-2 border-transparent focus:border-purple-200 transition-all" value={editBrand} onChange={e => setEditBrand(e.target.value)} placeholder="ยี่ห้อ/รุ่น" />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-8">
+              <button onClick={() => setIsEditEqModalOpen(false)} className="flex-1 py-4 text-slate-400 font-bold text-sm">Cancel</button>
+              <button onClick={handleUpdateEquipment} className="flex-1 py-4 bg-[#7C3AED] text-white rounded-2xl font-black text-sm shadow-lg">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: เพิ่มประวัติการซ่อม */}
+      {isLogModalOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 z-50 text-slate-900">
+          <div className="bg-white rounded-[2.8rem] p-8 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="text-center mb-6">
+              <div className="inline-block p-4 bg-purple-50 rounded-2xl mb-4 text-3xl">📝</div>
+              <h3 className="text-xl font-black text-slate-800 italic uppercase tracking-tighter">Add Service Log</h3>
+              <p className="text-[11px] text-slate-400 font-bold uppercase mt-1 tracking-widest opacity-70">บันทึกข้อมูลการดูแลรักษา</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Detail</label>
+                <input className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-bold text-sm shadow-inner border-2 border-transparent focus:border-purple-200 transition-all" value={detail} onChange={e => setDetail(e.target.value)} placeholder="เช่น เปลี่ยนน้ำมันเครื่อง" autoFocus />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Brand / Model <span className="normal-case font-medium opacity-50">(ถ้ามี)</span></label>
+                <input className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-medium text-sm shadow-inner border-2 border-transparent focus:border-purple-200 transition-all" value={logBrand} onChange={e => setLogBrand(e.target.value)} placeholder={equipment?.brand || 'ยี่ห้อ/รุ่น'} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Cost (฿)</label>
+                <input type="number" className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-black text-[#7C3AED] text-xl shadow-inner border-2 border-transparent focus:border-purple-200 transition-all" value={cost} onChange={e => setCost(e.target.value)} placeholder="0.00" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Service Date</label>
+                  <input type="date" className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none text-xs font-bold shadow-inner" value={serviceDate} onChange={e => setServiceDate(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-black text-red-300 uppercase tracking-widest ml-2 italic">Next Visit</label>
+                  <input type="date" className="w-full bg-red-50/50 rounded-2xl p-4 outline-none text-xs font-bold text-red-500 shadow-inner" value={nextServiceDate} onChange={e => setNextServiceDate(e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-8">
+              <button onClick={() => setIsLogModalOpen(false)} className="flex-1 py-4 text-slate-400 font-bold text-sm">Cancel</button>
+              <button onClick={handleAddLog} className="flex-1 py-4 bg-[#7C3AED] text-white rounded-2xl font-black text-sm shadow-lg shadow-purple-200">Save Log</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
