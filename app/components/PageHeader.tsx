@@ -24,7 +24,7 @@ export default function PageHeader({ title, backHref, rightElement }: Props) {
           </svg>
         </button>
 
-        <h1 className="text-white font-bold text-lg">{title}</h1>
+        <h1 className="text-white font-bold text-lg truncate max-w-[180px] text-center">{title}</h1>
 
         <div className="flex items-center justify-end gap-1 min-w-9">
           {rightElement || <div className="w-9 h-9" />}

@@ -139,11 +139,11 @@ export default function AssetDetailPage() {
         <div className="flex gap-2 mb-5">
           <button onClick={() => setActiveTab('systems')}
             className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'systems' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
-            {asset?.type === 'home' ? 'Rooms & Gear' : 'Systems & Parts'}
+            {asset?.type === 'home' ? 'ห้องและอุปกรณ์' : 'ระบบและชิ้นส่วน'}
           </button>
           <button onClick={() => setActiveTab('history')}
             className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'history' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
-            Full History
+            ประวัติทั้งหมด
           </button>
         </div>
 
@@ -151,7 +151,7 @@ export default function AssetDetailPage() {
         {activeTab === 'systems' && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-slate-800 font-bold text-base">Layout</h3>
+              <h3 className="text-slate-800 font-bold text-base">โครงสร้าง</h3>
               <button onClick={() => setIsSpaceModalOpen(true)} className="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full active:scale-95 transition-all">
                 {asset?.type === 'home' ? '+ Add Space' : '+ Add System'}
               </button>

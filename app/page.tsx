@@ -185,7 +185,7 @@ export default function Dashboard() {
       </div>
 
       <div className="px-5">
-        <p className="text-slate-500 text-base mb-0.5">Hello,</p>
+        <p className="text-slate-500 text-base mb-0.5">สวัสดี,</p>
         <h1 className="text-slate-900 text-2xl font-bold mb-5">{firstName}! 👋</h1>
 
         {/* Banner Card */}
@@ -215,7 +215,7 @@ export default function Dashboard() {
         </div>
 
         {/* Overview Grid */}
-        <h2 className="text-slate-800 font-bold text-base mb-3">Overview</h2>
+        <h2 className="text-slate-800 font-bold text-base mb-3">ภาพรวม</h2>
         <div className="grid grid-cols-2 gap-3 mb-6">
           <Link href="/reminders">
             <div className="bg-amber-400 rounded-2xl p-4 relative overflow-hidden active:scale-95 transition-all">

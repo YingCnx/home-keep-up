@@ -120,7 +120,7 @@ export default function EquipmentLogPage() {
         {/* Summary */}
         <div className="flex justify-between items-center mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
           <div>
-            <p className="text-slate-800 font-bold text-sm">Service History</p>
+            <p className="text-slate-800 font-bold text-sm">ประวัติการซ่อมบำรุง</p>
             <p className="text-slate-400 text-xs">{logs.length} รายการ</p>
           </div>
           <div className="flex items-center gap-3">
@@ -212,7 +212,7 @@ export default function EquipmentLogPage() {
       {isLogModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-6 z-50">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl max-h-[85vh] overflow-y-auto">
-            <h3 className="text-slate-800 font-bold text-lg mb-5">บันทึกการบำรุงรักษา</h3>
+            <h3 className="text-slate-800 font-bold text-lg mb-5">บันทึกการซ่อมบำรุง</h3>
 
             <div className="space-y-4">
               <div>

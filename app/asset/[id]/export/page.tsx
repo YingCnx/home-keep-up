@@ -53,9 +53,16 @@ export default function ExportPage() {
       const canvas = await html2canvas(printRef.current, {
         scale: 2,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         backgroundColor: '#ffffff',
         logging: false,
+        imageTimeout: 15000,
+        onclone: (doc) => {
+          // แทนที่รูปที่โหลดไม่ได้ด้วยพื้นหลังสีเทา
+          doc.querySelectorAll('img').forEach((img: HTMLImageElement) => {
+            img.crossOrigin = 'anonymous'
+          })
+        }
       })
 
       const imgData = canvas.toDataURL('image/png')
@@ -135,7 +142,7 @@ export default function ExportPage() {
           <div className="bg-blue-600 p-8 text-white">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <p className="text-blue-200 text-xs font-medium mb-1">MAINTENANCE HISTORY REPORT</p>
+                <p className="text-blue-200 text-xs font-medium mb-1">รายงานประวัติการบำรุงรักษา</p>
                 <h1 className="text-3xl font-bold">{asset?.name}</h1>
                 <p className="text-blue-200 text-sm mt-1">{assetTypeLabel} {asset?.asset_number ? `· ${asset.asset_number}` : ''}</p>
               </div>
@@ -171,7 +178,7 @@ export default function ExportPage() {
               <span className="text-slate-500 text-xs font-medium">Home Keep Up</span>
             </div>
             <p className="text-slate-400 text-xs">
-              Generated: {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
+              สร้างเมื่อ: {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
 

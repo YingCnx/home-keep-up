@@ -58,22 +58,24 @@ export default function ProfilePage() {
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-slate-100">
             <p className="text-2xl font-bold text-slate-800">{stats.assets}</p>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">Assets</p>
+            <p className="text-[10px] text-slate-400 font-medium mt-0.5">ทรัพย์สิน</p>
           </div>
           <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-slate-100">
             <p className="text-2xl font-bold text-slate-800">{stats.logs}</p>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">Records</p>
+            <p className="text-[10px] text-slate-400 font-medium mt-0.5">รายการ</p>
           </div>
           <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-slate-100">
-            <p className="text-lg font-bold text-blue-600">฿{(stats.total/1000).toFixed(0)}k</p>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">Total</p>
+            <p className="text-lg font-bold text-blue-600">
+              {stats.total >= 1000 ? `฿${(stats.total/1000).toFixed(1)}k` : `฿${stats.total.toLocaleString()}`}
+            </p>
+            <p className="text-[10px] text-slate-400 font-medium mt-0.5">ค่าใช้จ่าย</p>
           </div>
         </div>
 
         {/* Menu */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-4">
           <div className="px-5 py-4 border-b border-slate-50">
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Account</p>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">บัญชี</p>
           </div>
           <button onClick={handleLogout}
             className="w-full px-5 py-4 flex items-center gap-3 text-red-500 active:bg-red-50 transition-colors">
