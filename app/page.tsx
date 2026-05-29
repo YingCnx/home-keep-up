@@ -23,13 +23,24 @@ export default function Dashboard() {
     const { data: assetsData } = await supabase.from('assets').select('*').order('created_at', { ascending: false })
     const { data: logsData } = await supabase.from('maintenance_logs').select(`cost, equipments (spaces (asset_id))`)
     const today = new Date().toISOString().split('T')[0]
-    const { data: upcomingData } = await supabase
+    const in7days = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+
+    // เลยกำหนด
+    const { data: overdueData } = await supabase
+      .from('maintenance_logs')
+      .select(`id, detail, next_service_date, equipments (name, spaces (asset_id))`)
+      .not('next_service_date', 'is', null)
+      .lt('next_service_date', today)
+
+    // ด่วน (0-7 วัน)
+    const { data: urgentData } = await supabase
       .from('maintenance_logs')
       .select(`id, detail, next_service_date, equipments (name, spaces (asset_id))`)
       .not('next_service_date', 'is', null)
       .gte('next_service_date', today)
-      .order('next_service_date', { ascending: true })
-      .limit(5)
+      .lte('next_service_date', in7days)
+
+    const upcomingData = [...(overdueData || []), ...(urgentData || [])]
 
     if (assetsData) {
       const assetsWithTotal = assetsData.map(asset => {
@@ -39,7 +50,8 @@ export default function Dashboard() {
       })
       const tasksWithAssetName = upcomingData?.map(task => {
         const asset = assetsData.find(a => a.id === (task.equipments as any)?.spaces?.asset_id)
-        return { ...task, asset_name: asset?.name || 'Asset' }
+        const isOverdue = task.next_service_date < today
+        return { ...task, asset_name: asset?.name || 'Asset', isOverdue }
       })
       setAssets(assetsWithTotal)
       setUpcomingTasks(tasksWithAssetName || [])
@@ -70,7 +82,8 @@ export default function Dashboard() {
   )
 
   const firstName = user?.user_metadata?.name?.split(' ')[0] || 'คุณ'
-  const dueSoon = upcomingTasks.filter(t => getDaysLeft(t.next_service_date) <= 7).length
+  const overdueCount = upcomingTasks.filter(t => t.isOverdue).length
+  const dueSoon = upcomingTasks.filter(t => !t.isOverdue).length
 
   return (
     <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-24">
@@ -87,7 +100,7 @@ export default function Dashboard() {
               </svg>
             </div>
             {upcomingTasks.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-400 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span className={`absolute -top-1 -right-1 w-5 h-5 text-white text-[10px] font-bold rounded-full flex items-center justify-center ${overdueCount > 0 ? 'bg-red-500' : 'bg-amber-400'}`}>
                 {upcomingTasks.length}
               </span>
             )}
