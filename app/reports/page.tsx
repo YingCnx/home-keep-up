@@ -54,7 +54,7 @@ export default function ReportsPage() {
     const total = logs
       .filter(log => log.equipments?.spaces?.assets?.id === asset.id)
       .reduce((sum, log) => sum + (log.cost || 0), 0)
-    return { name: asset.name, type: asset.type, total }
+    return { name: asset.name, type: asset.type, vehicle_type: asset.vehicle_type, total }
   }).sort((a, b) => b.total - a.total)
 
   const chartData = period === 'monthly' ? monthlyData() : yearlyData()
