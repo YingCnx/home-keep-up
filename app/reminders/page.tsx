@@ -45,6 +45,7 @@ export default function RemindersPage() {
       .select('*, equipments(name, spaces(name, assets(name, type, image_url)))')
       .order('service_date', { ascending: false })
 
+
     setTasks(remindersData || [])
     setAllLogs(logsData || [])
     setLoading(false)
@@ -262,6 +263,12 @@ export default function RemindersPage() {
                       <p className="text-slate-800 font-bold text-sm flex-1 pr-3">{log.detail}</p>
                       <p className="text-blue-600 font-bold text-sm">฿{(log.cost || 0).toLocaleString()}</p>
                     </div>
+                    {log.image_url && (
+                      <a href={log.image_url} target="_blank" rel="noopener noreferrer" className="block mt-2 relative">
+                        <img src={log.image_url} alt="receipt" className="w-full h-32 object-cover rounded-2xl border border-slate-100" />
+                        <span className="absolute top-2 right-2 bg-black/40 text-white text-[10px] font-bold px-2 py-1 rounded-lg">ดูรูปเต็ม</span>
+                      </a>
+                    )}
                     <div className="flex justify-between items-center pt-3 border-t border-slate-50">
                       <div className="flex items-center gap-2">
                         <p className="text-slate-400 text-[11px]">{new Date(log.service_date).toLocaleDateString('th-TH')}</p>
