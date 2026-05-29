@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [totalExpenses, setTotalExpenses] = useState(0)
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [showLogout, setShowLogout] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
@@ -97,16 +98,35 @@ export default function Dashboard() {
           <p className="text-[#7C3AED] text-sm font-bold uppercase tracking-widest opacity-80">Welcome back,</p>
           <h1 className="text-2xl font-bold text-slate-800">{user?.user_metadata?.name || 'คุณภู'}</h1>
         </div>
-        <button
-          onClick={async () => { await supabase.auth.signOut(); router.push('/login') }}
-          className="w-12 h-12 bg-white rounded-2xl shadow-md flex items-center justify-center border-2 border-purple-100 overflow-hidden active:scale-90 transition-all"
-          title="Logout"
-        >
-          {user?.user_metadata?.avatar_url
-            ? <img src={user.user_metadata.avatar_url} className="w-full h-full object-cover" alt="avatar" />
-            : <span className="text-xl">🤵🏻‍♂️</span>
-          }
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowLogout(!showLogout)}
+            className="w-12 h-12 bg-white rounded-2xl shadow-md flex items-center justify-center border-2 border-purple-100 overflow-hidden active:scale-90 transition-all"
+          >
+            {user?.user_metadata?.avatar_url
+              ? <img src={user.user_metadata.avatar_url} className="w-full h-full object-cover" alt="avatar" />
+              : <span className="text-xl">🤵🏻‍♂️</span>
+            }
+          </button>
+
+          {showLogout && (
+            <>
+              <div className="fixed inset-0 z-30" onClick={() => setShowLogout(false)} />
+              <div className="absolute right-0 top-14 z-40 bg-white rounded-2xl shadow-xl border border-purple-50 overflow-hidden w-44">
+                <div className="px-4 py-3 border-b border-slate-50">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Account</p>
+                  <p className="text-sm font-bold text-slate-700 truncate">{user?.user_metadata?.name}</p>
+                </div>
+                <button
+                  onClick={async () => { await supabase.auth.signOut(); router.push('/login') }}
+                  className="w-full px-4 py-3 text-left text-sm font-bold text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2"
+                >
+                  <span>🚪</span> ออกจากระบบ
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </nav>
 
       <div className="px-6">
