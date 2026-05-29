@@ -21,6 +21,9 @@ export default function EquipmentLogPage() {
   const [serviceDate, setServiceDate] = useState(new Date().toISOString().split('T')[0])
   const [nextServiceDate, setNextServiceDate] = useState('')
   const [logBrand, setLogBrand] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
   const [editName, setEditName] = useState('')
   const [editBrand, setEditBrand] = useState('')
 
@@ -48,19 +51,43 @@ export default function EquipmentLogPage() {
     fetchData()
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
   const handleAddLog = async () => {
     if (!detail) return alert('กรุณาระบุรายละเอียด')
+    setUploading(true)
+
+    let image_url = null
+    if (imageFile) {
+      const ext = imageFile.name.split('.').pop()
+      const fileName = `${id}/${Date.now()}.${ext}`
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('receipts')
+        .upload(fileName, imageFile, { upsert: true })
+      if (!uploadError && uploadData) {
+        const { data: { publicUrl } } = supabase.storage.from('receipts').getPublicUrl(fileName)
+        image_url = publicUrl
+      }
+    }
+
     await supabase.from('maintenance_logs').insert([{
       equipment_id: id,
       detail,
       brand: logBrand || equipment?.brand || null,
       cost: parseFloat(cost) || 0,
       service_date: serviceDate,
-      next_service_date: nextServiceDate || null
+      next_service_date: nextServiceDate || null,
+      image_url
     }])
     if (logBrand) await supabase.from('equipments').update({ brand: logBrand }).eq('id', id)
-    setDetail(''); setCost(''); setNextServiceDate(''); setLogBrand(''); setIsLogModalOpen(false); fetchData()
-
+    setDetail(''); setCost(''); setNextServiceDate(''); setLogBrand('')
+    setImageFile(null); setImagePreview(null)
+    setUploading(false); setIsLogModalOpen(false); fetchData()
   }
 
   if (loading) return (
@@ -136,6 +163,12 @@ export default function EquipmentLogPage() {
                   <button onClick={() => handleDeleteLog(log.id)} className="text-slate-200 hover:text-red-400 p-1 transition-colors">✕</button>
                 </div>
                 
+                {log.image_url && (
+                  <a href={log.image_url} target="_blank" rel="noopener noreferrer" className="block mt-3 relative z-10">
+                    <img src={log.image_url} alt="receipt" className="w-full h-36 object-cover rounded-2xl border border-purple-50" />
+                    <span className="absolute top-2 right-2 bg-black/40 text-white text-[10px] font-bold px-2 py-1 rounded-lg">ดูรูปเต็ม</span>
+                  </a>
+                )}
                 <div className="flex justify-between items-end mt-3 pt-3 border-t border-slate-50 relative z-10">
                   <div>
                     <div className="flex items-center gap-1.5 mb-1">
@@ -231,11 +264,33 @@ export default function EquipmentLogPage() {
                   <input type="date" className="w-full bg-red-50/50 rounded-2xl p-4 outline-none text-xs font-bold text-red-500 shadow-inner" value={nextServiceDate} onChange={e => setNextServiceDate(e.target.value)} />
                 </div>
               </div>
+
+              {/* Image Upload */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">รูปใบเสร็จ / ความเสียหาย <span className="normal-case font-medium opacity-50">(ถ้ามี)</span></label>
+                {imagePreview ? (
+                  <div className="relative">
+                    <img src={imagePreview} className="w-full h-40 object-cover rounded-2xl" alt="preview" />
+                    <button
+                      onClick={() => { setImageFile(null); setImagePreview(null) }}
+                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center text-sm"
+                    >✕</button>
+                  </div>
+                ) : (
+                  <label className="w-full bg-[#F5F3FF] rounded-2xl p-5 flex flex-col items-center gap-2 cursor-pointer border-2 border-dashed border-purple-200 active:bg-purple-50 transition-all">
+                    <span className="text-2xl">📷</span>
+                    <span className="text-[11px] font-bold text-slate-400">กดเพื่อเลือกรูป</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                  </label>
+                )}
+              </div>
             </div>
 
             <div className="flex gap-2 mt-8">
-              <button onClick={() => setIsLogModalOpen(false)} className="flex-1 py-4 text-slate-400 font-bold text-sm">Cancel</button>
-              <button onClick={handleAddLog} className="flex-1 py-4 bg-[#7C3AED] text-white rounded-2xl font-black text-sm shadow-lg shadow-purple-200">Save Log</button>
+              <button onClick={() => { setIsLogModalOpen(false); setImageFile(null); setImagePreview(null) }} className="flex-1 py-4 text-slate-400 font-bold text-sm">Cancel</button>
+              <button onClick={handleAddLog} disabled={uploading} className="flex-1 py-4 bg-[#7C3AED] text-white rounded-2xl font-black text-sm shadow-lg shadow-purple-200 disabled:opacity-60">
+                {uploading ? 'กำลังอัปโหลด...' : 'Save Log'}
+              </button>
             </div>
           </div>
         </div>

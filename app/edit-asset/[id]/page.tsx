@@ -20,6 +20,10 @@ export default function EditAssetPage() {
     mileage_at_purchase: '',
     note: ''
   })
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   // ดึงข้อมูลเดิมมาแสดงในฟอร์ม
   useEffect(() => {
@@ -40,15 +44,36 @@ export default function EditAssetPage() {
           note: data.note || ''
         })
         setType(data.type)
+        setImageUrl(data.image_url || null)
       }
       setLoading(false)
     }
     fetchAsset()
   }, [id])
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
     setUpdating(true)
+
+    let finalImageUrl = imageUrl
+    if (imageFile) {
+      const ext = imageFile.name.split('.').pop()
+      const fileName = `${id}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('assets')
+        .upload(fileName, imageFile, { upsert: true })
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl(fileName)
+        finalImageUrl = publicUrl
+      }
+    }
 
     const { error } = await supabase
       .from('assets')
@@ -58,7 +83,8 @@ export default function EditAssetPage() {
         purchase_price: parseFloat(formData.purchase_price) || 0,
         area_size: type === 'home' ? formData.area_size : null,
         mileage_at_purchase: type !== 'home' ? parseInt(formData.mileage_at_purchase) : null,
-        note: formData.note
+        note: formData.note,
+        image_url: finalImageUrl
       })
       .eq('id', id)
 
@@ -104,12 +130,25 @@ export default function EditAssetPage() {
       <div className="px-6 -mt-8 relative z-20">
         <form onSubmit={handleUpdate} className="space-y-5">
           
-          {/* แสดงประเภท (Lock ไว้แก้ไขไม่ได้เพื่อความปลอดภัยของโครงสร้างข้อมูล) */}
-          <div className="bg-white/50 backdrop-blur-xl p-4 rounded-[2.2rem] flex items-center justify-center gap-3 border border-white opacity-80 shadow-sm">
-             <span className="text-2xl">{type === 'home' ? '🏠' : type === 'car' ? '🚗' : '🏍️'}</span>
-             <span className="font-black uppercase tracking-[0.2em] text-[10px] text-slate-400">
-               {type === 'home' ? 'Property Asset' : 'Vehicle Asset'}
-             </span>
+          {/* รูปภาพ */}
+          <div className="relative">
+            {(imagePreview || imageUrl) ? (
+              <div className="relative rounded-[2.2rem] overflow-hidden h-44 shadow-lg">
+                <img src={imagePreview || imageUrl!} className="w-full h-full object-cover" alt="asset" />
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                  <label className="bg-white/90 text-slate-800 font-black text-xs px-4 py-2 rounded-full cursor-pointer active:scale-95 transition-all">
+                    📷 เปลี่ยนรูป
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <label className="w-full bg-white/50 border-2 border-dashed border-purple-200 rounded-[2.2rem] p-8 flex flex-col items-center gap-2 cursor-pointer active:bg-purple-50 transition-all">
+                <span className="text-3xl">{type === 'home' ? '🏠' : type === 'car' ? '🚗' : '🏍️'}</span>
+                <span className="text-[11px] font-bold text-slate-400">กดเพื่อเพิ่มรูป</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              </label>
+            )}
           </div>
 
           {/* การ์ดฟอร์มแก้ไข */}

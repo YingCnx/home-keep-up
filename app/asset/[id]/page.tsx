@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import BottomNav from '../../components/BottomNav'
 
 export default function AssetDetailPage() {
   const { id } = useParams()
@@ -85,105 +86,100 @@ export default function AssetDetailPage() {
     else fetchData()
   }
 
-  if (loading) return <div className="max-w-md mx-auto h-screen flex items-center justify-center text-[#7C3AED] font-bold italic">Loading Dashboard...</div>
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-slate-50">
+      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-[#F5F3FF] text-slate-900 pb-32 font-sans shadow-2xl shadow-purple-100 text-slate-900">
-      {/* Top Nav */}
-      <nav className="sticky top-0 z-20 bg-[#F5F3FF] p-6 pb-4 flex justify-between items-center">
-        <div>
-          <p className="text-[#7C3AED] text-sm font-bold uppercase tracking-widest opacity-80">Welcome back,</p>
-          <h1 className="text-2xl font-bold text-slate-800">คุณภู (Phu)</h1>
-        </div>
-        <div className="w-12 h-12 bg-white rounded-2xl shadow-md flex items-center justify-center border-2 border-purple-100 overflow-hidden active:scale-90 transition-all">
-          <span className="text-xl">🤵🏻‍♂️</span>
-        </div>
-      </nav>
+    <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24 text-slate-900">
 
-      {/* Header & Specs Section */}
-      <div className="bg-[#7C3AED] rounded-b-[3.5rem] p-8 text-white relative overflow-hidden shadow-lg">
-        <div className="flex justify-between items-start relative z-10 mb-6 text-white">
-          <button onClick={() => router.push('/')} className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-xl active:scale-90 transition-all">←</button>
-          <Link href={`/edit-asset/${id}`} className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-sm">✎</Link>
+      {/* Header */}
+      <div className="bg-blue-600 px-6 pt-12 pb-20 relative overflow-hidden">
+        <div className="absolute -right-8 -top-8 w-40 h-40 bg-blue-500 rounded-full opacity-50" />
+        <div className="flex justify-between items-center relative z-10 mb-4">
+          <button onClick={() => router.push('/')} className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center text-white text-xl active:scale-90 transition-all">←</button>
+          <Link href={`/edit-asset/${id}`} className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center text-white text-sm active:scale-90 transition-all">✎</Link>
         </div>
-        <div className="relative z-10 mb-6">
-          <h1 className="text-3xl font-black tracking-tight leading-tight">{asset?.name}</h1>
-          <p className="text-white/60 text-[10px] font-bold uppercase tracking-[0.2em]">{asset?.asset_number || 'No ID'}</p>
+        <div className="relative z-10">
+          {asset?.image_url && (
+            <div className="w-16 h-16 rounded-2xl overflow-hidden mb-3 border-2 border-white/30">
+              <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
+            </div>
+          )}
+          <h1 className="text-white text-2xl font-bold">{asset?.name}</h1>
+          <p className="text-blue-200 text-sm">{asset?.asset_number || 'No ID'}</p>
         </div>
-        <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-5 flex justify-between items-center border border-white/20 shadow-inner">
-          <div className="text-center flex-1 text-white">
-            <p className="text-[9px] uppercase font-bold opacity-50 mb-0.5">Price</p>
-            <p className="text-sm font-black italic">฿{asset?.purchase_price?.toLocaleString()}</p>
-          </div>
-          <div className="w-[1px] h-8 bg-white/10"></div>
-          <div className="text-center flex-1 text-white">
-            <p className="text-[9px] uppercase font-bold opacity-50 mb-0.5">{asset?.type === 'home' ? 'Area' : 'Mileage'}</p>
-            <p className="text-sm font-black italic">{asset?.type === 'home' ? asset?.area_size : (asset?.mileage_at_purchase?.toLocaleString() + ' km')}</p>
-          </div>
-        </div>
-        <div className="absolute -right-6 -top-6 w-36 h-36 bg-white/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Tabs Selector */}
-      <div className="px-6 mt-8">
-        <div className="bg-white/50 p-1.5 rounded-[2.2rem] flex gap-1 shadow-sm border border-white mb-8">
-          <button 
-            onClick={() => setActiveTab('systems')}
-            className={`flex-1 py-3.5 rounded-[1.8rem] font-black text-[10px] uppercase tracking-widest transition-all duration-300 ${
-              activeTab === 'systems' ? 'bg-[#7C3AED] text-white shadow-lg shadow-purple-200' : 'text-slate-400'
-            }`}
-          >
+      <div className="px-5 -mt-6">
+        {/* Stats Card */}
+        <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 mb-5">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-slate-50 rounded-2xl p-3 text-center">
+              <p className="text-xs text-slate-400 font-medium mb-1">ราคาซื้อ</p>
+              <p className="text-slate-800 font-bold text-sm">฿{asset?.purchase_price?.toLocaleString() || '-'}</p>
+            </div>
+            <div className="bg-slate-50 rounded-2xl p-3 text-center">
+              <p className="text-xs text-slate-400 font-medium mb-1">{asset?.type === 'home' ? 'พื้นที่' : 'เลขไมล์'}</p>
+              <p className="text-slate-800 font-bold text-sm">
+                {asset?.type === 'home' ? (asset?.area_size || '-') : ((asset?.mileage_at_purchase?.toLocaleString() || '-') + ' km')}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-5">
+          <button onClick={() => setActiveTab('systems')}
+            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'systems' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
             {asset?.type === 'home' ? 'Rooms & Gear' : 'Systems & Parts'}
           </button>
-          <button 
-            onClick={() => setActiveTab('history')}
-            className={`flex-1 py-3.5 rounded-[1.8rem] font-black text-[10px] uppercase tracking-widest transition-all duration-300 ${
-              activeTab === 'history' ? 'bg-[#7C3AED] text-white shadow-lg shadow-purple-200' : 'text-slate-400'
-            }`}
-          >
+          <button onClick={() => setActiveTab('history')}
+            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'history' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
             Full History
           </button>
         </div>
 
-        {/* Tab 1: Layout Section */}
+        {/* Tab 1: Systems */}
         {activeTab === 'systems' && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-bold text-slate-800">Layout</h3>
-              <button onClick={() => setIsSpaceModalOpen(true)} className="text-[#7C3AED] text-[10px] font-black bg-white px-5 py-2.5 rounded-full shadow-lg shadow-purple-100 uppercase tracking-widest active:scale-95 transition-all">
+              <h3 className="text-slate-800 font-bold text-base">Layout</h3>
+              <button onClick={() => setIsSpaceModalOpen(true)} className="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full active:scale-95 transition-all">
                 {asset?.type === 'home' ? '+ Add Space' : '+ Add System'}
               </button>
             </div>
-            {spaces.map((space) => (
-              <div key={space.id} className="bg-white rounded-[2.8rem] p-7 shadow-xl shadow-purple-50/50 border border-white">
-                <div className="flex justify-between items-center mb-5 border-b border-slate-50 pb-3 text-slate-900">
-                  <h4 className="font-black uppercase text-[10px] tracking-[0.2em]">{space.name}</h4>
+            {spaces.map(space => (
+              <div key={space.id} className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+                <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-50">
+                  <h4 className="font-bold text-slate-700 text-sm uppercase tracking-wide">{space.name}</h4>
                   <div className="flex gap-2">
-                    <button onClick={() => handleDeleteSpace(space.id)} className="text-slate-300 hover:text-red-400">🗑️</button>
-                    <button onClick={() => { setSelectedSpaceId(space.id); setIsEqModalOpen(true); }} className="text-[9px] font-black bg-[#F5F3FF] text-[#7C3AED] px-3 py-1.5 rounded-xl uppercase tracking-widest">+ Item</button>
+                    <button onClick={() => handleDeleteSpace(space.id)} className="text-slate-300 hover:text-red-400 text-sm">🗑️</button>
+                    <button onClick={() => { setSelectedSpaceId(space.id); setIsEqModalOpen(true) }}
+                      className="bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1.5 rounded-xl">+ Item</button>
                   </div>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {space.equipments?.map((eq: any) => (
-                    <div key={eq.id} className="flex items-center gap-2 group">
+                    <div key={eq.id} className="flex items-center gap-2">
                       <Link href={`/equipment/${eq.id}`} className="flex-1">
-                        <div className="bg-[#F8F7FF] rounded-2xl p-4 flex justify-between items-center border border-transparent group-hover:border-purple-100 transition-all">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-xl shadow-sm text-slate-800">
+                        <div className="bg-slate-50 rounded-2xl p-3.5 flex justify-between items-center border border-slate-100 active:bg-slate-100 transition-all">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-lg shadow-sm">
                               {asset?.type === 'home' ? '🏠' : '⚙️'}
                             </div>
-                            <div className="text-slate-900">
-                              <p className="text-sm font-bold">{eq.name}</p>
-                              <p className="text-[10px] text-slate-400 font-bold uppercase">{eq.brand || 'General'}</p>
+                            <div>
+                              <p className="text-slate-800 font-bold text-sm">{eq.name}</p>
+                              <p className="text-slate-400 text-[11px]">{eq.brand || 'General'}</p>
                             </div>
                           </div>
-                          <span className="text-slate-300">❯</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                         </div>
                       </Link>
-                      <button
-                        onClick={(e) => handleDeleteEquipment(e, eq.id, eq.name)}
-                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-300 hover:text-red-500 hover:bg-red-100 transition-all text-sm flex-shrink-0"
-                      >🗑️</button>
+                      <button onClick={(e) => handleDeleteEquipment(e, eq.id, eq.name)}
+                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-300 hover:text-red-500 transition-all text-sm flex-shrink-0">🗑️</button>
                     </div>
                   ))}
                 </div>
@@ -192,53 +188,32 @@ export default function AssetDetailPage() {
           </div>
         )}
 
-        {/* Tab 2: Full History Section */}
+        {/* Tab 2: History */}
         {activeTab === 'history' && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="flex justify-between items-end mb-6">
-              <h3 className="text-lg font-bold text-slate-800 italic underline decoration-purple-200 underline-offset-8">
-                Records ({allLogs.length})
-              </h3>
-              <div className="text-right">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Spent</p>
-                <p className="text-xl font-black text-[#7C3AED]">
-                  ฿{allLogs.reduce((sum, log) => sum + log.cost, 0).toLocaleString()}
-                </p>
-              </div>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-slate-800 font-bold text-base">Records ({allLogs.length})</h3>
+              <p className="text-blue-600 font-bold text-sm">฿{allLogs.reduce((sum, log) => sum + log.cost, 0).toLocaleString()}</p>
             </div>
-
-            {allLogs.map((log) => (
-              <div key={log.id} className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-purple-50/50 border border-white relative overflow-hidden">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="bg-[#F5F3FF] text-[#7C3AED] text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-purple-100">
-                    {log.equipments?.spaces?.name}
-                  </span>
-                  <span className="text-slate-300 text-xs">❯</span>
-                  <span className="text-slate-700 text-[10px] font-bold uppercase tracking-tighter">
-                    {log.equipments?.name}
-                  </span>
+            {allLogs.map(log => (
+              <div key={log.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">{log.equipments?.spaces?.name}</span>
+                  <span className="text-slate-300 text-xs">›</span>
+                  <span className="text-slate-600 text-[11px] font-medium">{log.equipments?.name}</span>
                 </div>
-
-                <div className="flex justify-between items-start mb-4">
-                  <h4 className="font-bold text-slate-800 text-lg leading-tight flex-1 pr-4">{log.detail}</h4>
-                  <p className="font-black text-[#7C3AED] text-lg">฿{log.cost.toLocaleString()}</p>
+                <div className="flex justify-between items-start mb-3">
+                  <p className="text-slate-800 font-bold text-sm flex-1 pr-3">{log.detail}</p>
+                  <p className="text-blue-600 font-bold text-sm">฿{log.cost.toLocaleString()}</p>
                 </div>
-
-                <div className="flex justify-between items-center pt-4 border-t border-slate-50">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                    {new Date(log.service_date).toLocaleDateString('th-TH')}
-                  </p>
+                <div className="flex justify-between items-center pt-3 border-t border-slate-50">
+                  <p className="text-slate-400 text-[11px]">{new Date(log.service_date).toLocaleDateString('th-TH')}</p>
                   {log.next_service_date && (
-                    <div className="flex items-center gap-1.5 bg-red-50 px-3 py-1.5 rounded-xl">
-                      <span className="text-[10px] animate-pulse">⏳</span>
-                      <p className="text-[9px] font-black text-red-400 uppercase tracking-tighter">
-                        Next: {new Date(log.next_service_date).toLocaleDateString('th-TH')}
-                      </p>
+                    <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
+                      <span className="text-[10px]">⏳</span>
+                      <p className="text-amber-500 text-[11px] font-bold">Next: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}</p>
                     </div>
                   )}
-                </div>
-                <div className="absolute -right-2 -bottom-2 text-6xl opacity-[0.03] grayscale pointer-events-none">
-                  {asset?.type === 'home' ? '🏠' : '⚙️'}
                 </div>
               </div>
             ))}
@@ -246,45 +221,28 @@ export default function AssetDetailPage() {
         )}
       </div>
 
-      {/* --- Dynamic Modals --- */}
+      {/* Modals */}
       {(isSpaceModalOpen || isEqModalOpen) && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6 z-50 text-slate-900">
-          <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-xs shadow-2xl">
-            <h3 className="text-xl font-black text-slate-800 mb-6 text-center italic uppercase tracking-tighter">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-slate-800 font-bold text-lg mb-5">
               {isSpaceModalOpen ? (asset?.type === 'home' ? 'New Room' : 'New System') : (asset?.type === 'home' ? 'New Equipment' : 'New Part')}
             </h3>
-            
-            <div className="space-y-4">
+            <div>
               {isSpaceModalOpen ? (
-                <div className="space-y-1">
-                   <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">{asset?.type === 'home' ? 'Room Name' : 'System Name'}</label>
-                   <input 
-                    className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-bold border-2 border-transparent focus:border-purple-200 transition-all"
-                    placeholder={asset?.type === 'home' ? "เช่น ห้องนั่งเล่น" : "เช่น ระบบเครื่องยนต์"}
-                    value={newSpaceName}
-                    onChange={e => setNewSpaceName(e.target.value)}
-                    autoFocus
-                  />
-                </div>
+                <input className="w-full bg-slate-50 rounded-2xl p-4 outline-none font-medium border-2 border-transparent focus:border-blue-200 transition-all text-slate-800"
+                  placeholder={asset?.type === 'home' ? "เช่น ห้องนั่งเล่น" : "เช่น ระบบเครื่องยนต์"}
+                  value={newSpaceName} onChange={e => setNewSpaceName(e.target.value)} autoFocus />
               ) : (
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Name</label>
-                  <input
-                    className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-bold border-2 border-transparent focus:border-purple-200 transition-all"
-                    placeholder={asset?.type === 'home' ? "เช่น แอร์, ทีวี" : "เช่น น้ำมันเครื่อง, ยาง"}
-                    value={newEqName}
-                    onChange={e => setNewEqName(e.target.value)}
-                    autoFocus
-                  />
-                </div>
+                <input className="w-full bg-slate-50 rounded-2xl p-4 outline-none font-medium border-2 border-transparent focus:border-blue-200 transition-all text-slate-800"
+                  placeholder={asset?.type === 'home' ? "เช่น แอร์, ทีวี" : "เช่น น้ำมันเครื่อง, ยาง"}
+                  value={newEqName} onChange={e => setNewEqName(e.target.value)} autoFocus />
               )}
             </div>
-
-            <div className="flex gap-2 mt-8">
-              <button onClick={() => {setIsSpaceModalOpen(false); setIsEqModalOpen(false)}} className="flex-1 py-4 text-slate-400 font-bold text-sm">Cancel</button>
-              <button 
-                onClick={isSpaceModalOpen ? handleAddSpace : handleAddEquipment}
-                className="flex-1 py-4 bg-[#7C3AED] text-white rounded-2xl font-black text-sm shadow-lg shadow-purple-100"
+            <div className="flex gap-2 mt-5">
+              <button onClick={() => { setIsSpaceModalOpen(false); setIsEqModalOpen(false) }} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">Cancel</button>
+              <button onClick={isSpaceModalOpen ? handleAddSpace : handleAddEquipment}
+                className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md"
               >
                 Save
               </button>
@@ -293,7 +251,7 @@ export default function AssetDetailPage() {
         </div>
       )}
 
-
+      <BottomNav />
     </div>
   )
 }
