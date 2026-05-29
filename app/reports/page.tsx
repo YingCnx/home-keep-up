@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import BottomNav from '../components/BottomNav'
+import PageHeader from '../components/PageHeader'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 export default function ReportsPage() {
@@ -68,14 +69,9 @@ export default function ReportsPage() {
   return (
     <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24">
 
-      {/* Header */}
-      <div className="bg-blue-600 px-6 pt-12 pb-16 relative overflow-hidden">
-        <div className="absolute -right-8 -top-8 w-40 h-40 bg-blue-500 rounded-full opacity-50" />
-        <h1 className="text-white text-2xl font-bold relative z-10">Financials</h1>
-        <p className="text-blue-200 text-sm relative z-10">รายงานค่าใช้จ่าย</p>
-      </div>
+      <PageHeader title="การเงิน" />
 
-      <div className="px-5 -mt-6 space-y-4">
+      <div className="px-5 pt-5 space-y-4">
 
         {/* Total Card */}
         <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">

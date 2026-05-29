@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import BottomNav from '../components/BottomNav'
+import PageHeader from '../components/PageHeader'
 
 function getDaysLeft(dateStr: string) {
   const today = new Date(); today.setHours(0,0,0,0)
@@ -60,14 +61,9 @@ export default function RemindersPage() {
   return (
     <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24">
 
-      {/* Header */}
-      <div className="bg-blue-600 px-6 pt-12 pb-16 relative overflow-hidden">
-        <div className="absolute -right-8 -top-8 w-40 h-40 bg-blue-500 rounded-full opacity-50" />
-        <h1 className="text-white text-2xl font-bold relative z-10">Maintenance</h1>
-        <p className="text-blue-200 text-sm relative z-10">รายการบำรุงรักษา</p>
-      </div>
+      <PageHeader title="บำรุงรักษา" />
 
-      <div className="px-5 -mt-6">
+      <div className="px-5 pt-5">
 
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-3 mb-5">
