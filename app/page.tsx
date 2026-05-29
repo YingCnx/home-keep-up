@@ -79,7 +79,7 @@ export default function Dashboard() {
     <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24">
 
       {/* Header */}
-      <div className="bg-blue-600 px-6 pt-12 pb-20 relative overflow-hidden">
+      <div className="bg-blue-600 px-6 pt-12 pb-14 relative overflow-hidden">
         <div className="absolute -right-8 -top-8 w-40 h-40 bg-blue-500 rounded-full opacity-50" />
         <div className="absolute right-10 top-16 w-20 h-20 bg-blue-400 rounded-full opacity-40" />
 
@@ -141,7 +141,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="px-5 -mt-4">
+      <div className="px-5 -mt-8">
 
         {/* Upcoming Maintenance */}
         {upcomingTasks.length > 0 && (
