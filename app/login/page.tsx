@@ -18,11 +18,11 @@ export default function LoginPage() {
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-blue-500 rounded-full opacity-50" />
         <div className="absolute -left-6 bottom-0 w-32 h-32 bg-blue-400 rounded-full opacity-30" />
         <div className="relative z-10 text-center">
-          <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center text-5xl mx-auto mb-6 shadow-lg">
-            🏠
+          <div className="w-28 h-28 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+            <img src="/logo.png" alt="Home Keep Up" className="w-24 h-24 object-contain" />
           </div>
           <h1 className="text-white text-3xl font-bold mb-2">Home Keep Up</h1>
-          <p className="text-blue-200 text-sm font-medium">Asset & Maintenance Tracker</p>
+          <p className="text-blue-200 text-sm font-medium">Every Maintenance Matters</p>
         </div>
       </div>
 
