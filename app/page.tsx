@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from './lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -13,9 +13,22 @@ export default function Dashboard() {
   const [totalExpenses, setTotalExpenses] = useState(0)
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [showNotif, setShowNotif] = useState(false)
+  const notifRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
+  }, [])
+
+  // ปิด dropdown เมื่อคลิกนอก
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotif(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [])
 
   const fetchData = async () => {
@@ -25,17 +38,15 @@ export default function Dashboard() {
     const today = new Date().toISOString().split('T')[0]
     const in7days = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
-    // เลยกำหนด
     const { data: overdueData } = await supabase
       .from('maintenance_logs')
-      .select(`id, detail, next_service_date, equipments (name, spaces (asset_id))`)
+      .select(`id, detail, next_service_date, equipments (name, spaces (asset_id, assets(name, type, image_url)))`)
       .not('next_service_date', 'is', null)
       .lt('next_service_date', today)
 
-    // ด่วน (0-7 วัน)
     const { data: urgentData } = await supabase
       .from('maintenance_logs')
-      .select(`id, detail, next_service_date, equipments (name, spaces (asset_id))`)
+      .select(`id, detail, next_service_date, equipments (name, spaces (asset_id, assets(name, type, image_url)))`)
       .not('next_service_date', 'is', null)
       .gte('next_service_date', today)
       .lte('next_service_date', in7days)
@@ -51,7 +62,7 @@ export default function Dashboard() {
       const tasksWithAssetName = upcomingData?.map(task => {
         const asset = assetsData.find(a => a.id === (task.equipments as any)?.spaces?.asset_id)
         const isOverdue = task.next_service_date < today
-        return { ...task, asset_name: asset?.name || 'Asset', isOverdue }
+        return { ...task, asset_name: asset?.name || 'Asset', asset_image: asset?.image_url || null, asset_type: asset?.type, isOverdue }
       })
       setAssets(assetsWithTotal)
       setUpcomingTasks(tasksWithAssetName || [])
@@ -66,6 +77,15 @@ export default function Dashboard() {
     e.preventDefault()
     if (!confirm(`ยืนยันการลบ "${name}"?`)) return
     await supabase.from('assets').delete().eq('id', id)
+    fetchData()
+  }
+
+  // ล้างการแจ้งเตือนทั้งหมด
+  const handleClearAll = async () => {
+    if (!confirm('ล้างการแจ้งเตือนทั้งหมด?')) return
+    const ids = upcomingTasks.map(t => t.id)
+    await supabase.from('maintenance_logs').update({ next_service_date: null }).in('id', ids)
+    setShowNotif(false)
     fetchData()
   }
 
@@ -92,33 +112,94 @@ export default function Dashboard() {
       <div className="flex justify-between items-center px-5 pt-12 pb-4">
         <img src="/logo.png" alt="Home Keep Up" className="w-20 h-20 object-contain" />
         <div className="flex items-center gap-3">
-        <div className="relative">
-          <Link href="/reminders">
-            <div className="w-11 h-11 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100">
+
+          {/* Bell + Dropdown */}
+          <div className="relative" ref={notifRef}>
+            <button onClick={() => setShowNotif(v => !v)}
+              className="w-11 h-11 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 active:bg-slate-100 transition-all">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
-            </div>
+            </button>
             {upcomingTasks.length > 0 && (
-              <span className={`absolute -top-1 -right-1 w-5 h-5 text-white text-[10px] font-bold rounded-full flex items-center justify-center ${overdueCount > 0 ? 'bg-red-500' : 'bg-amber-400'}`}>
+              <span className={`absolute -top-1 -right-1 w-5 h-5 text-white text-[10px] font-bold rounded-full flex items-center justify-center pointer-events-none ${overdueCount > 0 ? 'bg-red-500' : 'bg-amber-400'}`}>
                 {upcomingTasks.length}
               </span>
             )}
-          </Link>
-        </div>
-        <Link href="/profile">
-          <div className="w-11 h-11 rounded-2xl overflow-hidden border-2 border-slate-100">
-            {user?.user_metadata?.avatar_url
-              ? <img src={user.user_metadata.avatar_url} className="w-full h-full object-cover" alt="avatar" />
-              : <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">{firstName[0]}</div>
-            }
+
+            {/* Dropdown Panel */}
+            {showNotif && (
+              <div className="absolute right-0 top-13 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 z-50 overflow-hidden mt-2">
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-50">
+                  <p className="font-bold text-slate-800 text-sm">การแจ้งเตือน</p>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${overdueCount > 0 ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'}`}>
+                    {upcomingTasks.length} รายการ
+                  </span>
+                </div>
+
+                {/* List */}
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-50">
+                  {upcomingTasks.length === 0 ? (
+                    <div className="py-10 text-center">
+                      <p className="text-2xl mb-2">🎉</p>
+                      <p className="text-slate-400 text-sm font-medium">ไม่มีรายการแจ้งเตือน</p>
+                    </div>
+                  ) : (
+                    upcomingTasks.map(task => {
+                      const days = getDaysLeft(task.next_service_date)
+                      const isOverdue = task.isOverdue
+                      const assetEmoji = task.asset_type === 'home' ? '🏠' : task.asset_type === 'motorcycle' ? '🏍️' : '🚗'
+                      return (
+                        <div key={task.id} className="flex items-center gap-3 px-4 py-3">
+                          <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0">
+                            {task.asset_image
+                              ? <img src={task.asset_image} className="w-full h-full object-cover" alt="" />
+                              : <div className={`w-full h-full flex items-center justify-center text-base ${isOverdue ? 'bg-red-50' : 'bg-amber-50'}`}>{assetEmoji}</div>
+                            }
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-800 font-bold text-xs truncate">{task.detail}</p>
+                            <p className="text-slate-400 text-[10px]">{task.asset_name} · {task.equipments?.name}</p>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg flex-shrink-0 ${isOverdue ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'}`}>
+                            {isOverdue ? `เลย ${Math.abs(days)}d` : days === 0 ? 'วันนี้!' : `${days}d`}
+                          </span>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+
+                {/* Footer */}
+                {upcomingTasks.length > 0 && (
+                  <div className="border-t border-slate-50 p-3 flex gap-2">
+                    <Link href="/reminders" onClick={() => setShowNotif(false)}
+                      className="flex-1 py-2.5 text-center text-blue-600 font-bold text-xs bg-blue-50 rounded-xl active:scale-95 transition-all">
+                      ดูทั้งหมด
+                    </Link>
+                    <button onClick={handleClearAll}
+                      className="flex-1 py-2.5 text-center text-slate-400 font-bold text-xs bg-slate-50 rounded-xl active:scale-95 transition-all">
+                      ล้างทั้งหมด
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        </Link>
+
+          <Link href="/profile">
+            <div className="w-11 h-11 rounded-2xl overflow-hidden border-2 border-slate-100">
+              {user?.user_metadata?.avatar_url
+                ? <img src={user.user_metadata.avatar_url} className="w-full h-full object-cover" alt="avatar" />
+                : <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">{firstName[0]}</div>
+              }
+            </div>
+          </Link>
         </div>
       </div>
 
       <div className="px-5">
-        {/* Greeting */}
         <p className="text-slate-500 text-base mb-0.5">Hello,</p>
         <h1 className="text-slate-900 text-2xl font-bold mb-5">{firstName}! 👋</h1>
 
@@ -135,7 +216,7 @@ export default function Dashboard() {
                   <p className="text-blue-200 text-xs mt-0.5">ทั้งหมด</p>
                 </div>
                 <div>
-                  <p className="text-white text-3xl font-bold">{dueSoon}</p>
+                  <p className="text-white text-3xl font-bold">{upcomingTasks.length}</p>
                   <p className="text-blue-200 text-xs mt-0.5">ใกล้ถึงกำหนด</p>
                 </div>
               </div>
@@ -197,7 +278,7 @@ export default function Dashboard() {
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </div>
-              <p className="text-amber-500 text-xs">คุณมี <span className="text-amber-700 font-bold">{dueSoon}</span> รายการเร่งด่วน</p>
+              <p className="text-amber-500 text-xs">คุณมี <span className="text-amber-700 font-bold">{overdueCount}</span> รายการเลยกำหนด</p>
             </div>
           </Link>
         </div>
