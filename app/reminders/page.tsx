@@ -19,20 +19,27 @@ export default function RemindersPage() {
   const [filter, setFilter] = useState<'all'|'urgent'|'overdue'>('all')
   const [activeTab, setActiveTab] = useState<'reminders'|'history'>('reminders')
 
+  // Modal state
+  const [logModal, setLogModal] = useState<any>(null) // task ที่กำลังบันทึก
+  const [logDetail, setLogDetail] = useState('')
+  const [logCost, setLogCost] = useState('')
+  const [logBrand, setLogBrand] = useState('')
+  const [logNextDate, setLogNextDate] = useState('')
+  const [logDate, setLogDate] = useState(new Date().toISOString().split('T')[0])
+  const [saving, setSaving] = useState(false)
+
   useEffect(() => {
     if ('Notification' in window) setNotifStatus(Notification.permission as any)
     fetchData()
   }, [])
 
   const fetchData = async () => {
-    // ดึง reminders (มี next_service_date)
     const { data: remindersData } = await supabase
       .from('maintenance_logs')
-      .select('*, equipments(name, spaces(name, assets(name, type)))')
+      .select('*, equipments(id, name, brand, spaces(name, assets(name, type)))')
       .not('next_service_date', 'is', null)
       .order('next_service_date', { ascending: true })
 
-    // ดึง history ทั้งหมด
     const { data: logsData } = await supabase
       .from('maintenance_logs')
       .select('*, equipments(name, spaces(name, assets(name, type)))')
@@ -53,6 +60,51 @@ export default function RemindersPage() {
     }
   }
 
+  // ✅ ทำแล้ว — ล้าง next_service_date ออก
+  const handleMarkDone = async (taskId: string) => {
+    if (!confirm('ยืนยันว่าดำเนินการเรียบร้อยแล้ว?')) return
+    await supabase.from('maintenance_logs').update({ next_service_date: null }).eq('id', taskId)
+    fetchData()
+  }
+
+  // 📋 เปิด modal บันทึกการซ่อม
+  const openLogModal = (task: any) => {
+    setLogModal(task)
+    setLogDetail(task.detail || '')
+    setLogBrand(task.equipments?.brand || '')
+    setLogCost('')
+    setLogNextDate('')
+    setLogDate(new Date().toISOString().split('T')[0])
+  }
+
+  const closeLogModal = () => {
+    setLogModal(null)
+    setLogDetail(''); setLogCost(''); setLogBrand(''); setLogNextDate('')
+  }
+
+  // 📋 บันทึกการซ่อม — สร้าง log ใหม่ + ล้าง next_service_date เก่า
+  const handleSaveLog = async () => {
+    if (!logDetail) return alert('กรุณาระบุรายละเอียด')
+    setSaving(true)
+
+    // สร้าง log ใหม่
+    await supabase.from('maintenance_logs').insert([{
+      equipment_id: logModal.equipments?.id,
+      detail: logDetail,
+      brand: logBrand || null,
+      cost: parseFloat(logCost) || 0,
+      service_date: logDate,
+      next_service_date: logNextDate || null,
+    }])
+
+    // ล้าง next_service_date ของ log เก่า
+    await supabase.from('maintenance_logs').update({ next_service_date: null }).eq('id', logModal.id)
+
+    setSaving(false)
+    closeLogModal()
+    fetchData()
+  }
+
   const filtered = tasks.filter(task => {
     const days = getDaysLeft(task.next_service_date)
     if (filter === 'overdue') return days < 0
@@ -63,6 +115,9 @@ export default function RemindersPage() {
   const overdue = tasks.filter(t => getDaysLeft(t.next_service_date) < 0).length
   const urgent = tasks.filter(t => { const d = getDaysLeft(t.next_service_date); return d >= 0 && d <= 7 }).length
   const totalCost = allLogs.reduce((sum, log) => sum + (log.cost || 0), 0)
+
+  const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
+  const labelClass = "text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block"
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-slate-50">
@@ -92,7 +147,6 @@ export default function RemindersPage() {
         {/* ---- TAB: REMINDERS ---- */}
         {activeTab === 'reminders' && (
           <>
-            {/* Summary Cards */}
             <div className="grid grid-cols-3 gap-3 mb-5">
               <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-slate-100">
                 <p className="text-2xl font-bold text-slate-800">{tasks.length}</p>
@@ -108,7 +162,6 @@ export default function RemindersPage() {
               </div>
             </div>
 
-            {/* Notification Banner */}
             {notifStatus === 'default' && (
               <button onClick={requestNotification}
                 className="w-full mb-5 bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 shadow-md active:scale-95 transition-all">
@@ -127,7 +180,6 @@ export default function RemindersPage() {
               </div>
             )}
 
-            {/* Filter Tabs */}
             <div className="flex gap-2 mb-4">
               {[{key:'all',label:'ทั้งหมด'},{key:'overdue',label:'เลยกำหนด'},{key:'urgent',label:'ด่วน'}].map(tab => (
                 <button key={tab.key} onClick={() => setFilter(tab.key as any)}
@@ -137,7 +189,6 @@ export default function RemindersPage() {
               ))}
             </div>
 
-            {/* Task List */}
             <div className="space-y-3">
               {filtered.map(task => {
                 const days = getDaysLeft(task.next_service_date)
@@ -147,7 +198,8 @@ export default function RemindersPage() {
                 const assetIcon = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
                 return (
                   <div key={task.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                    <div className="flex items-start gap-3">
+                    {/* Info Row */}
+                    <div className="flex items-start gap-3 mb-3">
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${isOverdue ? 'bg-red-50' : isUrgent ? 'bg-amber-50' : 'bg-blue-50'}`}>
                         {assetIcon}
                       </div>
@@ -164,6 +216,18 @@ export default function RemindersPage() {
                           {new Date(task.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                         </p>
                       </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-3 border-t border-slate-50">
+                      <button onClick={() => handleMarkDone(task.id)}
+                        className="flex-1 py-2 rounded-xl bg-green-50 text-green-600 font-bold text-xs active:scale-95 transition-all border border-green-100">
+                        ✅ ทำแล้ว
+                      </button>
+                      <button onClick={() => openLogModal(task)}
+                        className="flex-1 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs active:scale-95 transition-all shadow-sm">
+                        📋 บันทึกการซ่อม
+                      </button>
                     </div>
                   </div>
                 )
@@ -185,14 +249,12 @@ export default function RemindersPage() {
               <p className="text-slate-500 text-sm font-medium">{allLogs.length} รายการ</p>
               <p className="text-blue-600 font-bold text-sm">฿{totalCost.toLocaleString()}</p>
             </div>
-
             <div className="space-y-3">
               {allLogs.map(log => {
                 const asset = log.equipments?.spaces?.assets
                 const assetIcon = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
                 return (
                   <div key={log.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                    {/* Asset + Space + Equipment */}
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-base">{assetIcon}</span>
                       <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">{asset?.name}</span>
@@ -201,12 +263,10 @@ export default function RemindersPage() {
                       <span className="text-slate-300 text-xs">›</span>
                       <span className="text-slate-500 text-[11px]">{log.equipments?.name}</span>
                     </div>
-                    {/* Detail + Cost */}
                     <div className="flex justify-between items-start mb-3">
                       <p className="text-slate-800 font-bold text-sm flex-1 pr-3">{log.detail}</p>
                       <p className="text-blue-600 font-bold text-sm">฿{(log.cost || 0).toLocaleString()}</p>
                     </div>
-                    {/* Date + Brand + Next */}
                     <div className="flex justify-between items-center pt-3 border-t border-slate-50">
                       <div className="flex items-center gap-2">
                         <p className="text-slate-400 text-[11px]">{new Date(log.service_date).toLocaleDateString('th-TH')}</p>
@@ -235,8 +295,53 @@ export default function RemindersPage() {
             </div>
           </>
         )}
-
       </div>
+
+      {/* Modal: บันทึกการซ่อม */}
+      {logModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-6 z-50">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl max-h-[85vh] overflow-y-auto">
+            <h3 className="text-slate-800 font-bold text-lg mb-1">บันทึกการซ่อม</h3>
+            <p className="text-slate-400 text-xs mb-5">@ {logModal.equipments?.name} · {logModal.equipments?.spaces?.name}</p>
+
+            <div className="space-y-4">
+              <div>
+                <label className={labelClass}>รายละเอียด</label>
+                <input className={inputClass} value={logDetail} onChange={e => setLogDetail(e.target.value)}
+                  placeholder="เช่น เปลี่ยนน้ำมันเครื่อง" autoFocus />
+              </div>
+              <div>
+                <label className={labelClass}>ยี่ห้อ / รุ่น <span className="normal-case font-medium opacity-50">(ถ้ามี)</span></label>
+                <input className={inputClass} value={logBrand} onChange={e => setLogBrand(e.target.value)}
+                  placeholder={logModal.equipments?.brand || 'ยี่ห้อ/รุ่น'} />
+              </div>
+              <div>
+                <label className={labelClass}>ค่าใช้จ่าย (฿)</label>
+                <input type="number" className={`${inputClass} text-blue-600 font-bold text-lg`}
+                  value={logCost} onChange={e => setLogCost(e.target.value)} placeholder="0" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelClass}>วันที่ซ่อม</label>
+                  <input type="date" className={inputClass} value={logDate} onChange={e => setLogDate(e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelClass}>นัดครั้งต่อไป</label>
+                  <input type="date" className={inputClass} value={logNextDate} onChange={e => setLogNextDate(e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-6">
+              <button onClick={closeLogModal} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
+              <button onClick={handleSaveLog} disabled={saving}
+                className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
+                {saving ? 'กำลังบันทึก...' : 'บันทึก'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>
