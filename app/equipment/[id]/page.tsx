@@ -123,7 +123,13 @@ export default function EquipmentLogPage() {
             <p className="text-slate-800 font-bold text-sm">Service History</p>
             <p className="text-slate-400 text-xs">{logs.length} รายการ</p>
           </div>
-          <p className="text-blue-600 font-bold text-lg">฿{logs.reduce((sum, l) => sum + (l.cost || 0), 0).toLocaleString()}</p>
+          <div className="flex items-center gap-3">
+            <p className="text-blue-600 font-bold text-lg">฿{logs.reduce((sum, l) => sum + (l.cost || 0), 0).toLocaleString()}</p>
+            <button onClick={() => setIsLogModalOpen(true)}
+              className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-md active:scale-90 transition-all">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
         </div>
 
         {/* Timeline */}
@@ -178,13 +184,6 @@ export default function EquipmentLogPage() {
         </div>
       </div>
 
-      {/* Floating Add Button */}
-      <div className="fixed bottom-24 right-5 z-30">
-        <button onClick={() => setIsLogModalOpen(true)}
-          className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200 active:scale-90 transition-all border-2 border-white">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-      </div>
 
       {/* Modal: Edit Equipment */}
       {isEditEqModalOpen && (
