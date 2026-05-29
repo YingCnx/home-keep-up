@@ -80,15 +80,6 @@ export default function Dashboard() {
     fetchData()
   }
 
-  // ล้างการแจ้งเตือนทั้งหมด
-  const handleClearAll = async () => {
-    if (!confirm('ล้างการแจ้งเตือนทั้งหมด?')) return
-    const ids = upcomingTasks.map(t => t.id)
-    await supabase.from('maintenance_logs').update({ next_service_date: null }).in('id', ids)
-    setShowNotif(false)
-    fetchData()
-  }
-
   const getDaysLeft = (dateStr: string) => {
     const today = new Date(); today.setHours(0,0,0,0)
     const target = new Date(dateStr); target.setHours(0,0,0,0)
@@ -173,15 +164,11 @@ export default function Dashboard() {
 
                 {/* Footer */}
                 {upcomingTasks.length > 0 && (
-                  <div className="border-t border-slate-50 p-3 flex gap-2">
+                  <div className="border-t border-slate-50 p-3">
                     <Link href="/reminders" onClick={() => setShowNotif(false)}
-                      className="flex-1 py-2.5 text-center text-blue-600 font-bold text-xs bg-blue-50 rounded-xl active:scale-95 transition-all">
-                      ดูทั้งหมด
+                      className="block w-full py-2.5 text-center text-blue-600 font-bold text-xs bg-blue-50 rounded-xl active:scale-95 transition-all">
+                      ดูทั้งหมดและจัดการ →
                     </Link>
-                    <button onClick={handleClearAll}
-                      className="flex-1 py-2.5 text-center text-slate-400 font-bold text-xs bg-slate-50 rounded-xl active:scale-95 transition-all">
-                      ล้างทั้งหมด
-                    </button>
                   </div>
                 )}
               </div>
