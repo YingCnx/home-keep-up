@@ -26,7 +26,7 @@ export default function PageHeader({ title, backHref, rightElement }: Props) {
 
         <h1 className="text-white font-bold text-lg">{title}</h1>
 
-        <div className="w-9 h-9 flex items-center justify-center">
+        <div className="flex items-center justify-end gap-1 min-w-9">
           {rightElement || <div className="w-9 h-9" />}
         </div>
       </div>
