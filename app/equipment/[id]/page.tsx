@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useParams, useRouter } from 'next/navigation'
+import PageHeader from '../../components/PageHeader'
 
 export default function EquipmentLogPage() {
   const { id } = useParams()
@@ -100,37 +101,27 @@ export default function EquipmentLogPage() {
   )
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-[#F8F7FF] pb-32 font-sans shadow-2xl shadow-purple-100 text-slate-900">
-      {/* Top Nav */}
-      <nav className="sticky top-0 z-20 bg-[#F8F7FF] p-6 pb-4 flex justify-between items-center">
+    <div className="max-w-md mx-auto min-h-screen bg-white pb-24 font-sans text-slate-900">
+      <PageHeader title={equipment?.name || 'Equipment'}
+        rightElement={
+          <button onClick={() => setIsEditEqModalOpen(true)} className="w-9 h-9 flex items-center justify-center rounded-xl active:bg-slate-50 transition-all">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+        }
+      />
+
+      {/* Info Banner */}
+      <div className="mx-5 mt-4 mb-5 bg-blue-50 rounded-2xl p-4 flex items-center gap-3 border border-blue-100">
+        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm">⚙️</div>
         <div>
-          <p className="text-[#7C3AED] text-sm font-bold uppercase tracking-widest opacity-80">Welcome back,</p>
-          <h1 className="text-2xl font-bold text-slate-800">คุณภู (Phu)</h1>
+          <p className="text-slate-800 font-bold text-sm">{equipment?.name}</p>
+          <p className="text-slate-400 text-xs">{equipment?.spaces?.name}{equipment?.brand ? ` · ${equipment.brand}` : ''}</p>
         </div>
-        <div className="w-12 h-12 bg-white rounded-2xl shadow-md flex items-center justify-center border-2 border-purple-100 overflow-hidden active:scale-90 transition-all">
-          <span className="text-xl">🤵🏻‍♂️</span>
-        </div>
-      </nav>
-
-
-      {/* Header - กระชับสไตล์ Template ใหม่ */}
-      <div className="bg-[#7C3AED] h-48 rounded-b-[3rem] p-8 text-white relative overflow-hidden shadow-lg">
-        <div className="flex justify-between items-start relative z-10 mb-4">
-          <button onClick={() => router.back()} className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-xl active:scale-90 transition-all">←</button>
-          <div className="flex gap-2">
-            <button onClick={() => setIsEditEqModalOpen(true)} className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-sm active:scale-90 transition-all">✎</button>
-          </div>
-        </div>
-        <div className="relative z-10">
-          <h1 className="text-2xl font-black tracking-tight leading-tight">{equipment?.name}</h1>
-          <p className="text-white/70 text-[11px] font-bold uppercase tracking-widest mt-1">
-            {equipment?.spaces?.name} {equipment?.brand && `| ${equipment?.brand}`}
-          </p>
-        </div>
-        <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="px-6 mt-8">
+      <div className="px-5">
         {/* รายงานยอดรวม */}
         <div className="flex justify-between items-end mb-8 bg-white p-5 rounded-[2rem] shadow-sm border border-white">
           <div>
@@ -139,23 +130,23 @@ export default function EquipmentLogPage() {
           </div>
           <div className="text-right">
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter mb-1">Total Spent</p>
-            <p className="text-xl font-black text-[#7C3AED] leading-none tabular-nums">฿{logs.reduce((sum, l) => sum + (l.cost || 0), 0).toLocaleString()}</p>
+            <p className="text-xl font-black text-blue-600 leading-none tabular-nums">฿{logs.reduce((sum, l) => sum + (l.cost || 0), 0).toLocaleString()}</p>
           </div>
         </div>
 
         {/* Timeline - ปรับปรุงสไตล์ตามคำขอคุณภู */}
-        <div className="space-y-5 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-purple-100">
+        <div className="space-y-5 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-blue-100">
           {logs.map(log => (
             <div key={log.id} className="relative pl-10 group">
               {/* จุด Timeline */}
-              <div className="absolute left-[17px] top-3 w-2 h-2 bg-[#7C3AED] rounded-full border-2 border-white shadow-sm z-10"></div>
+              <div className="absolute left-[17px] top-3 w-2 h-2 bg-blue-600 rounded-full border-2 border-white shadow-sm z-10"></div>
               
               <div className="bg-white rounded-[2.2rem] p-5 shadow-sm border border-white active:scale-[0.98] transition-all overflow-hidden relative">
                 <div className="flex justify-between items-start mb-2 relative z-10">
                   <div className="flex-1 pr-4">
                     <h4 className="font-bold text-slate-800 text-[15px] leading-tight">{log.detail}</h4>
                     {log.brand && (
-                      <span className="inline-block mt-1.5 bg-purple-50 text-[#7C3AED] text-[10px] font-black px-2.5 py-1 rounded-lg border border-purple-100 uppercase tracking-wider">
+                      <span className="inline-block mt-1.5 bg-blue-50 text-blue-600 text-[10px] font-black px-2.5 py-1 rounded-lg border border-blue-100 uppercase tracking-wider">
                         {log.brand}
                       </span>
                     )}
@@ -186,7 +177,7 @@ export default function EquipmentLogPage() {
                       </div>
                     )}
                   </div>
-                  <p className="font-black text-[#7C3AED] text-lg tabular-nums italic">฿{log.cost.toLocaleString()}</p>
+                  <p className="font-black text-blue-600 text-lg tabular-nums italic">฿{log.cost.toLocaleString()}</p>
                 </div>
               </div>
             </div>

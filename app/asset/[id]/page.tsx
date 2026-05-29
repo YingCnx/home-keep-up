@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import BottomNav from '../../components/BottomNav'
+import PageHeader from '../../components/PageHeader'
 
 export default function AssetDetailPage() {
   const { id } = useParams()
@@ -93,42 +94,39 @@ export default function AssetDetailPage() {
   )
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24 text-slate-900">
+    <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-24 text-slate-900">
 
-      {/* Header */}
-      <div className="bg-blue-600 px-6 pt-12 pb-20 relative overflow-hidden">
-        <div className="absolute -right-8 -top-8 w-40 h-40 bg-blue-500 rounded-full opacity-50" />
-        <div className="flex justify-between items-center relative z-10 mb-4">
-          <button onClick={() => router.push('/')} className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center text-white text-xl active:scale-90 transition-all">←</button>
-          <Link href={`/edit-asset/${id}`} className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center text-white text-sm active:scale-90 transition-all">✎</Link>
+      <PageHeader title={asset?.name || 'Asset'} backHref="/"
+        rightElement={
+          <Link href={`/edit-asset/${id}`} className="w-9 h-9 flex items-center justify-center rounded-xl active:bg-slate-50 transition-all">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </Link>
+        }
+      />
+
+      {/* Asset Info Banner */}
+      <div className="mx-5 mt-4 mb-5 bg-blue-50 rounded-3xl p-4 flex items-center gap-4 border border-blue-100">
+        <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-white border border-blue-100">
+          {asset?.image_url
+            ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
+            : <div className="w-full h-full flex items-center justify-center text-2xl">
+                {asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'}
+              </div>
+          }
         </div>
-        <div className="relative z-10">
-          {asset?.image_url && (
-            <div className="w-16 h-16 rounded-2xl overflow-hidden mb-3 border-2 border-white/30">
-              <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
-            </div>
-          )}
-          <h1 className="text-white text-2xl font-bold">{asset?.name}</h1>
-          <p className="text-blue-200 text-sm">{asset?.asset_number || 'No ID'}</p>
+        <div>
+          <p className="text-slate-500 text-xs">{asset?.asset_number || 'No ID'}</p>
+          <p className="text-blue-600 font-bold text-base mt-0.5">฿{asset?.purchase_price?.toLocaleString() || '0'}</p>
+          <p className="text-slate-400 text-xs mt-0.5">
+            {asset?.type === 'home' ? (asset?.area_size || '-') : ((asset?.mileage_at_purchase?.toLocaleString() || '-') + ' km')}
+          </p>
         </div>
       </div>
 
-      <div className="px-5 -mt-6">
+      <div className="px-5">
         {/* Stats Card */}
-        <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 mb-5">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-slate-50 rounded-2xl p-3 text-center">
-              <p className="text-xs text-slate-400 font-medium mb-1">ราคาซื้อ</p>
-              <p className="text-slate-800 font-bold text-sm">฿{asset?.purchase_price?.toLocaleString() || '-'}</p>
-            </div>
-            <div className="bg-slate-50 rounded-2xl p-3 text-center">
-              <p className="text-xs text-slate-400 font-medium mb-1">{asset?.type === 'home' ? 'พื้นที่' : 'เลขไมล์'}</p>
-              <p className="text-slate-800 font-bold text-sm">
-                {asset?.type === 'home' ? (asset?.area_size || '-') : ((asset?.mileage_at_purchase?.toLocaleString() || '-') + ' km')}
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-5">
