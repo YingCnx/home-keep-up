@@ -2,21 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import PageHeader from '../../components/PageHeader'
 
 export default function EquipmentLogPage() {
   const { id } = useParams()
-  const router = useRouter()
   const [equipment, setEquipment] = useState<any>(null)
   const [logs, setLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  // --- Modal States ---
   const [isLogModalOpen, setIsLogModalOpen] = useState(false)
   const [isEditEqModalOpen, setIsEditEqModalOpen] = useState(false)
 
-  // --- Form States ---
   const [detail, setDetail] = useState('')
   const [cost, setCost] = useState('')
   const [serviceDate, setServiceDate] = useState(new Date().toISOString().split('T')[0])
@@ -28,10 +25,12 @@ export default function EquipmentLogPage() {
   const [editName, setEditName] = useState('')
   const [editBrand, setEditBrand] = useState('')
 
+  const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
+  const labelClass = "text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block"
+
   const fetchData = async () => {
     const { data: eqData } = await supabase.from('equipments').select('*, spaces(name)').eq('id', id).single()
     const { data: logsData } = await supabase.from('maintenance_logs').select('*').eq('equipment_id', id).order('service_date', { ascending: false })
-    
     setEquipment(eqData)
     setEditName(eqData?.name || '')
     setEditBrand(eqData?.brand || '')
@@ -43,7 +42,7 @@ export default function EquipmentLogPage() {
 
   const handleUpdateEquipment = async () => {
     await supabase.from('equipments').update({ name: editName, brand: editBrand }).eq('id', id)
-    setIsEditEqModalOpen(false); fetchData();
+    setIsEditEqModalOpen(false); fetchData()
   }
 
   const handleDeleteLog = async (logId: string) => {
@@ -73,6 +72,8 @@ export default function EquipmentLogPage() {
       if (!uploadError && uploadData) {
         const { data: { publicUrl } } = supabase.storage.from('receipts').getPublicUrl(fileName)
         image_url = publicUrl
+      } else if (uploadError) {
+        console.error('Upload error:', uploadError.message)
       }
     }
 
@@ -91,17 +92,20 @@ export default function EquipmentLogPage() {
     setUploading(false); setIsLogModalOpen(false); fetchData()
   }
 
+  const closeLogModal = () => {
+    setIsLogModalOpen(false)
+    setDetail(''); setCost(''); setNextServiceDate(''); setLogBrand('')
+    setImageFile(null); setImagePreview(null)
+  }
+
   if (loading) return (
-    <div className="max-w-md mx-auto h-screen flex items-center justify-center bg-[#F8F7FF]">
-      <div className="flex flex-col items-center gap-2">
-        <div className="w-10 h-10 border-4 border-[#7C3AED] border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-[#7C3AED] font-bold text-sm">กำลังโหลดประวัติ...</p>
-      </div>
+    <div className="h-screen flex items-center justify-center bg-white">
+      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-white pb-24 font-sans text-slate-900">
+    <div className="max-w-md mx-auto min-h-screen bg-white pb-32 font-sans text-slate-900">
       <PageHeader title={equipment?.name || 'Equipment'}
         rightElement={
           <button onClick={() => setIsEditEqModalOpen(true)} className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/20 active:bg-white/30 transition-all">
@@ -122,165 +126,158 @@ export default function EquipmentLogPage() {
       </div>
 
       <div className="px-5">
-        {/* รายงานยอดรวม */}
-        <div className="flex justify-between items-end mb-8 bg-white p-5 rounded-[2rem] shadow-sm border border-white">
+        {/* Summary */}
+        <div className="flex justify-between items-center mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
           <div>
-            <h2 className="text-base font-bold text-slate-800">Service History</h2>
-            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tighter">Maintenance Records</p>
+            <p className="text-slate-800 font-bold text-sm">Service History</p>
+            <p className="text-slate-400 text-xs">{logs.length} รายการ</p>
           </div>
-          <div className="text-right">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter mb-1">Total Spent</p>
-            <p className="text-xl font-black text-blue-600 leading-none tabular-nums">฿{logs.reduce((sum, l) => sum + (l.cost || 0), 0).toLocaleString()}</p>
-          </div>
+          <p className="text-blue-600 font-bold text-lg">฿{logs.reduce((sum, l) => sum + (l.cost || 0), 0).toLocaleString()}</p>
         </div>
 
-        {/* Timeline - ปรับปรุงสไตล์ตามคำขอคุณภู */}
-        <div className="space-y-5 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-blue-100">
+        {/* Timeline */}
+        <div className="space-y-4 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-blue-100">
           {logs.map(log => (
-            <div key={log.id} className="relative pl-10 group">
-              {/* จุด Timeline */}
-              <div className="absolute left-[17px] top-3 w-2 h-2 bg-blue-600 rounded-full border-2 border-white shadow-sm z-10"></div>
-              
-              <div className="bg-white rounded-[2.2rem] p-5 shadow-sm border border-white active:scale-[0.98] transition-all overflow-hidden relative">
-                <div className="flex justify-between items-start mb-2 relative z-10">
-                  <div className="flex-1 pr-4">
-                    <h4 className="font-bold text-slate-800 text-[15px] leading-tight">{log.detail}</h4>
+            <div key={log.id} className="relative pl-10">
+              <div className="absolute left-[17px] top-4 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white shadow-sm z-10" />
+              <div className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex-1 pr-3">
+                    <p className="font-bold text-slate-800 text-sm">{log.detail}</p>
                     {log.brand && (
-                      <span className="inline-block mt-1.5 bg-blue-50 text-blue-600 text-[10px] font-black px-2.5 py-1 rounded-lg border border-blue-100 uppercase tracking-wider">
-                        {log.brand}
-                      </span>
+                      <span className="inline-block mt-1 bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-0.5 rounded-lg border border-blue-100">{log.brand}</span>
                     )}
                   </div>
-                  <button onClick={() => handleDeleteLog(log.id)} className="text-slate-200 hover:text-red-400 p-1 transition-colors">✕</button>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-blue-600 text-sm">฿{(log.cost || 0).toLocaleString()}</p>
+                    <button onClick={() => handleDeleteLog(log.id)} className="text-slate-200 hover:text-red-400 transition-colors text-sm">✕</button>
+                  </div>
                 </div>
-                
+
                 {log.image_url && (
-                  <a href={log.image_url} target="_blank" rel="noopener noreferrer" className="block mt-3 relative z-10">
-                    <img src={log.image_url} alt="receipt" className="w-full h-36 object-cover rounded-2xl border border-purple-50" />
+                  <a href={log.image_url} target="_blank" rel="noopener noreferrer" className="block mt-2 relative">
+                    <img src={log.image_url} alt="receipt" className="w-full h-36 object-cover rounded-2xl border border-slate-100" />
                     <span className="absolute top-2 right-2 bg-black/40 text-white text-[10px] font-bold px-2 py-1 rounded-lg">ดูรูปเต็ม</span>
                   </a>
                 )}
-                <div className="flex justify-between items-end mt-3 pt-3 border-t border-slate-50 relative z-10">
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-purple-200"></span>
-                      <p className="text-[11px] text-slate-400 font-bold">
-                        {new Date(log.service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}
+
+                <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-50">
+                  <p className="text-slate-400 text-[11px]">
+                    {new Date(log.service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </p>
+                  {log.next_service_date && (
+                    <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
+                      <span className="text-[10px]">⏳</span>
+                      <p className="text-amber-500 text-[11px] font-bold">
+                        Next: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                       </p>
                     </div>
-                    {log.next_service_date && (
-                      <div className="inline-flex items-center gap-1 bg-red-50 px-2 py-0.5 rounded-lg">
-                        <span className="text-[10px] animate-pulse">⏳</span>
-                        <p className="text-[11px] font-bold text-red-400 uppercase tracking-tighter">
-                          Next: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  <p className="font-black text-blue-600 text-lg tabular-nums italic">฿{log.cost.toLocaleString()}</p>
+                  )}
                 </div>
               </div>
             </div>
           ))}
-          
+
           {logs.length === 0 && (
-            <div className="text-center py-20 bg-white/50 border-2 border-dashed border-purple-200 rounded-[2.5rem] italic text-purple-300 font-bold">
-              ยังไม่มีประวัติการดูแล
+            <div className="text-center py-16 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+              <p className="text-3xl mb-2">📋</p>
+              <p className="text-slate-400 font-bold text-sm">ยังไม่มีประวัติการดูแล</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Floating Add Button */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30">
-        <button 
-          onClick={() => setIsLogModalOpen(true)}
-          className="w-16 h-16 bg-[#7C3AED] rounded-full flex items-center justify-center text-white text-4xl shadow-xl shadow-purple-200 active:scale-90 transition-all border-4 border-white"
-        >+</button>
+      <div className="fixed bottom-24 right-5 z-30">
+        <button onClick={() => setIsLogModalOpen(true)}
+          className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200 active:scale-90 transition-all border-2 border-white">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
       </div>
 
-      {/* Modal: แก้ไขข้อมูลอุปกรณ์ */}
+      {/* Modal: Edit Equipment */}
       {isEditEqModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6 z-50 text-slate-900">
-          <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-xs shadow-2xl">
-            <h3 className="text-lg font-black text-slate-800 mb-6 text-center italic uppercase tracking-widest underline decoration-purple-100 underline-offset-8">Edit Info</h3>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-28 z-50">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-slate-800 font-bold text-lg mb-5">แก้ไขข้อมูล</h3>
             <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Equipment Name</label>
-                <input className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-bold text-sm shadow-inner border-2 border-transparent focus:border-purple-200 transition-all" value={editName} onChange={e => setEditName(e.target.value)} placeholder="ชื่ออุปกรณ์" />
+              <div>
+                <label className={labelClass}>ชื่ออุปกรณ์</label>
+                <input className={inputClass} value={editName} onChange={e => setEditName(e.target.value)} placeholder="ชื่ออุปกรณ์" />
               </div>
-              <div className="space-y-1">
-                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Brand / Model</label>
-                <input className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-medium text-sm shadow-inner border-2 border-transparent focus:border-purple-200 transition-all" value={editBrand} onChange={e => setEditBrand(e.target.value)} placeholder="ยี่ห้อ/รุ่น" />
+              <div>
+                <label className={labelClass}>ยี่ห้อ / รุ่น</label>
+                <input className={inputClass} value={editBrand} onChange={e => setEditBrand(e.target.value)} placeholder="ยี่ห้อ/รุ่น" />
               </div>
             </div>
-            <div className="flex gap-2 mt-8">
-              <button onClick={() => setIsEditEqModalOpen(false)} className="flex-1 py-4 text-slate-400 font-bold text-sm">Cancel</button>
-              <button onClick={handleUpdateEquipment} className="flex-1 py-4 bg-[#7C3AED] text-white rounded-2xl font-black text-sm shadow-lg">Save</button>
+            <div className="flex gap-2 mt-5">
+              <button onClick={() => setIsEditEqModalOpen(false)} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">Cancel</button>
+              <button onClick={handleUpdateEquipment} className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md">Save</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal: เพิ่มประวัติการซ่อม */}
+      {/* Modal: Add Service Log */}
       {isLogModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 pb-28 z-50 text-slate-900">
-          <div className="bg-white rounded-[2.8rem] p-8 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="text-center mb-6">
-              <div className="inline-block p-4 bg-purple-50 rounded-2xl mb-4 text-3xl">📝</div>
-              <h3 className="text-xl font-black text-slate-800 italic uppercase tracking-tighter">Add Service Log</h3>
-              <p className="text-[11px] text-slate-400 font-bold uppercase mt-1 tracking-widest opacity-70">บันทึกข้อมูลการดูแลรักษา</p>
-            </div>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-6 z-50">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl max-h-[85vh] overflow-y-auto">
+            <h3 className="text-slate-800 font-bold text-lg mb-5">บันทึกการบำรุงรักษา</h3>
 
             <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Detail</label>
-                <input className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-bold text-sm shadow-inner border-2 border-transparent focus:border-purple-200 transition-all" value={detail} onChange={e => setDetail(e.target.value)} placeholder="เช่น เปลี่ยนน้ำมันเครื่อง" autoFocus />
+              <div>
+                <label className={labelClass}>รายละเอียด</label>
+                <input className={inputClass} value={detail} onChange={e => setDetail(e.target.value)}
+                  placeholder="เช่น เปลี่ยนน้ำมันเครื่อง" autoFocus />
               </div>
-              <div className="space-y-1">
-                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Brand / Model <span className="normal-case font-medium opacity-50">(ถ้ามี)</span></label>
-                <input className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-medium text-sm shadow-inner border-2 border-transparent focus:border-purple-200 transition-all" value={logBrand} onChange={e => setLogBrand(e.target.value)} placeholder={equipment?.brand || 'ยี่ห้อ/รุ่น'} />
+
+              <div>
+                <label className={labelClass}>ยี่ห้อ / รุ่น <span className="normal-case font-medium opacity-50">(ถ้ามี)</span></label>
+                <input className={inputClass} value={logBrand} onChange={e => setLogBrand(e.target.value)}
+                  placeholder={equipment?.brand || 'ยี่ห้อ/รุ่น'} />
               </div>
-              <div className="space-y-1">
-                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Cost (฿)</label>
-                <input type="number" className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none font-black text-[#7C3AED] text-xl shadow-inner border-2 border-transparent focus:border-purple-200 transition-all" value={cost} onChange={e => setCost(e.target.value)} placeholder="0.00" />
+
+              <div>
+                <label className={labelClass}>ค่าใช้จ่าย (฿)</label>
+                <input type="number" className={`${inputClass} text-blue-600 font-bold text-lg`}
+                  value={cost} onChange={e => setCost(e.target.value)} placeholder="0" />
               </div>
+
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">Service Date</label>
-                  <input type="date" className="w-full bg-[#F5F3FF] rounded-2xl p-4 outline-none text-xs font-bold shadow-inner" value={serviceDate} onChange={e => setServiceDate(e.target.value)} />
+                <div>
+                  <label className={labelClass}>วันที่ซ่อม</label>
+                  <input type="date" className={inputClass} value={serviceDate} onChange={e => setServiceDate(e.target.value)} />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[11px] font-black text-red-300 uppercase tracking-widest ml-2 italic">Next Visit</label>
-                  <input type="date" className="w-full bg-red-50/50 rounded-2xl p-4 outline-none text-xs font-bold text-red-500 shadow-inner" value={nextServiceDate} onChange={e => setNextServiceDate(e.target.value)} />
+                <div>
+                  <label className={labelClass}>นัดครั้งต่อไป</label>
+                  <input type="date" className={inputClass} value={nextServiceDate} onChange={e => setNextServiceDate(e.target.value)} />
                 </div>
               </div>
 
               {/* Image Upload */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-black text-slate-300 uppercase tracking-widest ml-2">รูปใบเสร็จ / ความเสียหาย <span className="normal-case font-medium opacity-50">(ถ้ามี)</span></label>
+              <div>
+                <label className={labelClass}>รูปใบเสร็จ / ความเสียหาย <span className="normal-case font-medium opacity-50">(ถ้ามี)</span></label>
                 {imagePreview ? (
                   <div className="relative">
-                    <img src={imagePreview} className="w-full h-40 object-cover rounded-2xl" alt="preview" />
-                    <button
-                      onClick={() => { setImageFile(null); setImagePreview(null) }}
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center text-sm"
-                    >✕</button>
+                    <img src={imagePreview} className="w-full h-40 object-cover rounded-2xl border border-slate-100" alt="preview" />
+                    <button onClick={() => { setImageFile(null); setImagePreview(null) }}
+                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center text-sm font-bold">✕</button>
                   </div>
                 ) : (
-                  <label className="w-full bg-[#F5F3FF] rounded-2xl p-5 flex flex-col items-center gap-2 cursor-pointer border-2 border-dashed border-purple-200 active:bg-purple-50 transition-all">
+                  <label className="w-full bg-slate-50 rounded-2xl p-5 flex flex-col items-center gap-2 cursor-pointer border-2 border-dashed border-slate-200 active:bg-slate-100 transition-all">
                     <span className="text-2xl">📷</span>
-                    <span className="text-[11px] font-bold text-slate-400">กดเพื่อเลือกรูป</span>
+                    <span className="text-xs font-medium text-slate-400">กดเพื่อเลือกรูป</span>
                     <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                   </label>
                 )}
               </div>
             </div>
 
-            <div className="flex gap-2 mt-8">
-              <button onClick={() => { setIsLogModalOpen(false); setImageFile(null); setImagePreview(null) }} className="flex-1 py-4 text-slate-400 font-bold text-sm">Cancel</button>
-              <button onClick={handleAddLog} disabled={uploading} className="flex-1 py-4 bg-[#7C3AED] text-white rounded-2xl font-black text-sm shadow-lg shadow-purple-200 disabled:opacity-60">
-                {uploading ? 'กำลังอัปโหลด...' : 'Save Log'}
+            <div className="flex gap-2 mt-6">
+              <button onClick={closeLogModal} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">Cancel</button>
+              <button onClick={handleAddLog} disabled={uploading}
+                className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
+                {uploading ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
             </div>
           </div>
