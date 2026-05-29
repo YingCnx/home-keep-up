@@ -36,13 +36,13 @@ export default function RemindersPage() {
   const fetchData = async () => {
     const { data: remindersData } = await supabase
       .from('maintenance_logs')
-      .select('*, equipments(id, name, brand, spaces(name, assets(name, type)))')
+      .select('*, equipments(id, name, brand, spaces(name, assets(name, type, image_url)))')
       .not('next_service_date', 'is', null)
       .order('next_service_date', { ascending: true })
 
     const { data: logsData } = await supabase
       .from('maintenance_logs')
-      .select('*, equipments(name, spaces(name, assets(name, type)))')
+      .select('*, equipments(name, spaces(name, assets(name, type, image_url)))')
       .order('service_date', { ascending: false })
 
     setTasks(remindersData || [])
@@ -188,13 +188,16 @@ export default function RemindersPage() {
                 const isOverdue = days < 0
                 const isUrgent = days >= 0 && days <= 7
                 const asset = task.equipments?.spaces?.assets
-                const assetIcon = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
+                const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
                 return (
                   <div key={task.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
                     {/* Info Row */}
                     <div className="flex items-start gap-3 mb-3">
-                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${isOverdue ? 'bg-red-50' : isUrgent ? 'bg-amber-50' : 'bg-blue-50'}`}>
-                        {assetIcon}
+                      <div className={`w-11 h-11 rounded-xl flex-shrink-0 overflow-hidden border ${isOverdue ? 'border-red-100' : isUrgent ? 'border-amber-100' : 'border-blue-100'}`}>
+                        {asset?.image_url
+                          ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
+                          : <div className={`w-full h-full flex items-center justify-center text-xl ${isOverdue ? 'bg-red-50' : isUrgent ? 'bg-amber-50' : 'bg-blue-50'}`}>{assetEmoji}</div>
+                        }
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] text-slate-400 font-medium mb-0.5">{asset?.name} · {task.equipments?.spaces?.name}</p>
@@ -241,11 +244,14 @@ export default function RemindersPage() {
             <div className="space-y-3">
               {allLogs.map(log => {
                 const asset = log.equipments?.spaces?.assets
-                const assetIcon = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
+                const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.type === 'motorcycle' ? '🏍️' : '🚗'
                 return (
                   <div key={log.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-base">{assetIcon}</span>
+                      {asset?.image_url
+                        ? <img src={asset.image_url} className="w-6 h-6 rounded-lg object-cover flex-shrink-0" alt={asset.name} />
+                        : <span className="text-base">{assetEmoji}</span>
+                      }
                       <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">{asset?.name}</span>
                       <span className="text-slate-300 text-xs">›</span>
                       <span className="text-slate-500 text-[11px] font-medium">{log.equipments?.spaces?.name}</span>
