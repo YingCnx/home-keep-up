@@ -224,7 +224,7 @@ export default function EquipmentLogPage() {
 
       {/* Modal: เพิ่มประวัติการซ่อม */}
       {isLogModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 z-50 text-slate-900">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 pb-28 z-50 text-slate-900">
           <div className="bg-white rounded-[2.8rem] p-8 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="text-center mb-6">
               <div className="inline-block p-4 bg-purple-50 rounded-2xl mb-4 text-3xl">📝</div>

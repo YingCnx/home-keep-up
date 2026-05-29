@@ -221,7 +221,7 @@ export default function AssetDetailPage() {
 
       {/* Modals */}
       {(isSpaceModalOpen || isEqModalOpen) && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-28 z-50">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="text-slate-800 font-bold text-lg mb-5">
               {isSpaceModalOpen ? (asset?.type === 'home' ? 'New Room' : 'New System') : (asset?.type === 'home' ? 'New Equipment' : 'New Part')}
