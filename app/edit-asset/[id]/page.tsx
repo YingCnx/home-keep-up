@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { useRouter, useParams } from 'next/navigation'
 import PageHeader from '../../components/PageHeader'
 import Link from 'next/link'
+import { uploadImage } from '../../lib/uploadImage'
 
 export default function EditAssetPage() {
   const router = useRouter()
@@ -52,12 +53,8 @@ export default function EditAssetPage() {
 
     let finalImageUrl = imageUrl
     if (imageFile) {
-      const ext = imageFile.name.split('.').pop()
-      const { error: uploadError } = await supabase.storage.from('assets').upload(`${id}.${ext}`, imageFile, { upsert: true })
-      if (!uploadError) {
-        const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl(`${id}.${ext}`)
-        finalImageUrl = publicUrl
-      }
+      const url = await uploadImage(imageFile, 'assets', `${id}`)
+      if (url) finalImageUrl = url
     }
 
     const { error } = await supabase.from('assets').update({

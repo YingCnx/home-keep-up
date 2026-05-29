@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useParams } from 'next/navigation'
 import PageHeader from '../../components/PageHeader'
+import { uploadImage } from '../../lib/uploadImage'
 
 export default function EquipmentLogPage() {
   const { id } = useParams()
@@ -64,17 +65,7 @@ export default function EquipmentLogPage() {
 
     let image_url = null
     if (imageFile) {
-      const ext = imageFile.name.split('.').pop()
-      const fileName = `${id}/${Date.now()}.${ext}`
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('receipts')
-        .upload(fileName, imageFile, { upsert: true })
-      if (!uploadError && uploadData) {
-        const { data: { publicUrl } } = supabase.storage.from('receipts').getPublicUrl(fileName)
-        image_url = publicUrl
-      } else if (uploadError) {
-        console.error('Upload error:', uploadError.message)
-      }
+      image_url = await uploadImage(imageFile, 'receipts', `${id}/${Date.now()}`)
     }
 
     await supabase.from('maintenance_logs').insert([{
