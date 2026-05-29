@@ -45,8 +45,7 @@ export default function AddAssetPage() {
         <div className="bg-slate-50 p-1.5 rounded-2xl flex gap-1 mb-5 border border-slate-100">
           {[
             { id: 'home', label: 'บ้าน', icon: '🏠' },
-            { id: 'car', label: 'รถยนต์', icon: '🚗' },
-            { id: 'motorcycle', label: 'มอไซค์', icon: '🏍️' }
+            { id: 'car', label: 'รถ', icon: '🚗' }
           ].map(item => (
             <button key={item.id} type="button" onClick={() => setSelector(item.id as any)}
               className={`flex-1 py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-0.5 transition-all ${selector === item.id ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}`}>
