@@ -77,7 +77,7 @@ export default function Dashboard() {
 
       {/* Top Bar */}
       <div className="flex justify-between items-center px-5 pt-12 pb-4">
-        <img src="/logo.png" alt="Home Keep Up" className="w-10 h-10 object-contain" />
+        <img src="/logo.png" alt="Home Keep Up" className="w-20 h-20 object-contain" />
         <div className="flex items-center gap-3">
         <div className="relative">
           <Link href="/reminders">
