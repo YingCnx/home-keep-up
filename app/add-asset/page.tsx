@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import PageHeader from '../components/PageHeader'
+import { useFeedback } from '../components/Feedback'
 
 export default function AddAssetPage() {
   const router = useRouter()
+  const { toast } = useFeedback()
   const [loading, setLoading] = useState(false)
   const [selector, setSelector] = useState<'home' | 'car' | 'motorcycle'>('home')
   const [formData, setFormData] = useState({
@@ -29,8 +31,8 @@ export default function AddAssetPage() {
       note: formData.note,
       user_id: user?.id
     }])
-    if (error) alert(error.message)
-    else { router.push('/'); router.refresh() }
+    if (error) toast(error.message, 'error')
+    else { toast('เพิ่มทรัพย์สินแล้ว', 'success'); router.push('/'); router.refresh() }
     setLoading(false)
   }
 

@@ -5,9 +5,11 @@ import { supabase } from '../../lib/supabase'
 import { useParams } from 'next/navigation'
 import PageHeader from '../../components/PageHeader'
 import { uploadImage } from '../../lib/uploadImage'
+import { useFeedback } from '../../components/Feedback'
 
 export default function EquipmentLogPage() {
   const { id } = useParams()
+  const { confirm, toast } = useFeedback()
   const [equipment, setEquipment] = useState<any>(null)
   const [logs, setLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -43,12 +45,13 @@ export default function EquipmentLogPage() {
 
   const handleUpdateEquipment = async () => {
     await supabase.from('equipments').update({ name: editName, brand: editBrand }).eq('id', id)
-    setIsEditEqModalOpen(false); fetchData()
+    setIsEditEqModalOpen(false); toast('บันทึกแล้ว', 'success'); fetchData()
   }
 
   const handleDeleteLog = async (logId: string) => {
-    if (!confirm('ยืนยันการลบรายการนี้?')) return
+    if (!await confirm({ title: 'ลบรายการนี้?', confirmText: 'ลบ', danger: true })) return
     await supabase.from('maintenance_logs').delete().eq('id', logId)
+    toast('ลบแล้ว', 'success')
     fetchData()
   }
 
@@ -60,7 +63,7 @@ export default function EquipmentLogPage() {
   }
 
   const handleAddLog = async () => {
-    if (!detail) return alert('กรุณาระบุรายละเอียด')
+    if (!detail) return toast('กรุณาระบุรายละเอียด', 'error')
     setUploading(true)
 
     let image_url = null
@@ -80,7 +83,7 @@ export default function EquipmentLogPage() {
     if (logBrand) await supabase.from('equipments').update({ brand: logBrand }).eq('id', id)
     setDetail(''); setCost(''); setNextServiceDate(''); setLogBrand('')
     setImageFile(null); setImagePreview(null)
-    setUploading(false); setIsLogModalOpen(false); fetchData()
+    setUploading(false); setIsLogModalOpen(false); toast('บันทึกการซ่อมแล้ว', 'success'); fetchData()
   }
 
   const closeLogModal = () => {
@@ -97,7 +100,7 @@ export default function EquipmentLogPage() {
 
   return (
     <div className="max-w-md mx-auto min-h-screen bg-white pb-32 font-sans text-slate-900">
-      <PageHeader title={equipment?.name || 'Equipment'}
+      <PageHeader title={equipment?.name || 'อุปกรณ์'}
         rightElement={
           <button onClick={() => setIsEditEqModalOpen(true)} className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/20 active:bg-white/30 transition-all">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -166,7 +169,7 @@ export default function EquipmentLogPage() {
                     <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
                       <span className="text-[10px]">⏳</span>
                       <p className="text-amber-500 text-[11px] font-bold">
-                        Next: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                        ครั้งต่อไป: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                       </p>
                     </div>
                   )}
@@ -201,8 +204,8 @@ export default function EquipmentLogPage() {
               </div>
             </div>
             <div className="flex gap-2 mt-5">
-              <button onClick={() => setIsEditEqModalOpen(false)} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">Cancel</button>
-              <button onClick={handleUpdateEquipment} className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md">Save</button>
+              <button onClick={() => setIsEditEqModalOpen(false)} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
+              <button onClick={handleUpdateEquipment} className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md">บันทึก</button>
             </div>
           </div>
         </div>
@@ -264,7 +267,7 @@ export default function EquipmentLogPage() {
             </div>
 
             <div className="flex gap-2 mt-6">
-              <button onClick={closeLogModal} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">Cancel</button>
+              <button onClick={closeLogModal} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
               <button onClick={handleAddLog} disabled={uploading}
                 className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
                 {uploading ? 'กำลังบันทึก...' : 'บันทึก'}

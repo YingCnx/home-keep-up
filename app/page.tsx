@@ -5,9 +5,11 @@ import { supabase } from './lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import BottomNav from './components/BottomNav'
+import { useFeedback } from './components/Feedback'
 
 export default function Dashboard() {
   const router = useRouter()
+  const { confirm, toast } = useFeedback()
   const [assets, setAssets] = useState<any[]>([])
   const [upcomingTasks, setUpcomingTasks] = useState<any[]>([])
   const [totalExpenses, setTotalExpenses] = useState(0)
@@ -75,8 +77,9 @@ export default function Dashboard() {
 
   const handleDelete = async (e: React.MouseEvent, id: string, name: string) => {
     e.preventDefault()
-    if (!confirm(`ยืนยันการลบ "${name}"?`)) return
+    if (!await confirm({ title: 'ลบทรัพย์สิน?', message: `"${name}" และข้อมูลทั้งหมดจะถูกลบถาวร`, confirmText: 'ลบ', danger: true })) return
     await supabase.from('assets').delete().eq('id', id)
+    toast('ลบทรัพย์สินแล้ว', 'success')
     fetchData()
   }
 
@@ -294,7 +297,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${asset.type === 'home' ? 'bg-orange-50 text-orange-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
-                      {asset.type === 'home' ? 'Property' : asset.vehicle_type || 'รถ'}
+                      {asset.type === 'home' ? 'บ้าน' : asset.vehicle_type || 'รถ'}
                     </span>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>

@@ -1,5 +1,6 @@
 import { Prompt } from 'next/font/google'
 import './globals.css'
+import { FeedbackProvider } from './components/Feedback'
 
 const prompt = Prompt({
   weight: ['300', '400', '500', '600', '700', '800'],
@@ -11,7 +12,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="th">
       <body className={`${prompt.variable} font-sans`}>
-        {children}
+        <FeedbackProvider>
+          {children}
+        </FeedbackProvider>
       </body>
     </html>
   )

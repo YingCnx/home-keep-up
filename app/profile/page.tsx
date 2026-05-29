@@ -5,9 +5,11 @@ import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import BottomNav from '../components/BottomNav'
 import PageHeader from '../components/PageHeader'
+import { useFeedback } from '../components/Feedback'
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { confirm } = useFeedback()
   const [user, setUser] = useState<any>(null)
   const [stats, setStats] = useState({ assets: 0, logs: 0, total: 0 })
 
@@ -26,7 +28,7 @@ export default function ProfilePage() {
   }
 
   const handleLogout = async () => {
-    if (!confirm('ยืนยันการออกจากระบบ?')) return
+    if (!await confirm({ title: 'ออกจากระบบ?', message: 'คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง', confirmText: 'ออกจากระบบ', danger: true })) return
     await supabase.auth.signOut()
     router.push('/login')
   }

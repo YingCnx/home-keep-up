@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import BottomNav from '../components/BottomNav'
 import PageHeader from '../components/PageHeader'
+import { useFeedback } from '../components/Feedback'
 
 function getDaysLeft(dateStr: string) {
   const today = new Date(); today.setHours(0,0,0,0)
@@ -12,6 +13,7 @@ function getDaysLeft(dateStr: string) {
 }
 
 export default function RemindersPage() {
+  const { toast } = useFeedback()
   const [tasks, setTasks] = useState<any[]>([])
   const [allLogs, setAllLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -52,7 +54,7 @@ export default function RemindersPage() {
   }
 
   const requestNotification = async () => {
-    if (!('Notification' in window)) return alert('เบราว์เซอร์นี้ไม่รองรับ Notification')
+    if (!('Notification' in window)) return toast('เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือน', 'error')
     const permission = await Notification.requestPermission()
     setNotifStatus(permission as any)
     if (permission === 'granted') {
@@ -78,7 +80,7 @@ export default function RemindersPage() {
 
   // 📋 บันทึกการซ่อม — สร้าง log ใหม่ + ล้าง next_service_date เก่า
   const handleSaveLog = async () => {
-    if (!logDetail) return alert('กรุณาระบุรายละเอียด')
+    if (!logDetail) return toast('กรุณาระบุรายละเอียด', 'error')
     setSaving(true)
 
     // สร้าง log ใหม่
@@ -97,6 +99,7 @@ export default function RemindersPage() {
     await fetchData()
     setSaving(false)
     closeLogModal()
+    toast('บันทึกการซ่อมแล้ว', 'success')
   }
 
   const filtered = tasks.filter(task => {
@@ -280,7 +283,7 @@ export default function RemindersPage() {
                         <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
                           <span className="text-[10px]">⏳</span>
                           <p className="text-amber-500 text-[11px] font-bold">
-                            Next: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                            ครั้งต่อไป: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                           </p>
                         </div>
                       )}

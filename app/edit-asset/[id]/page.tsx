@@ -6,10 +6,12 @@ import { useRouter, useParams } from 'next/navigation'
 import PageHeader from '../../components/PageHeader'
 import Link from 'next/link'
 import { uploadImage } from '../../lib/uploadImage'
+import { useFeedback } from '../../components/Feedback'
 
 export default function EditAssetPage() {
   const router = useRouter()
   const { id } = useParams()
+  const { toast } = useFeedback()
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
   const [type, setType] = useState<'home' | 'vehicle'>('home')
@@ -67,8 +69,8 @@ export default function EditAssetPage() {
       note: formData.note, image_url: finalImageUrl
     }).eq('id', id)
 
-    if (error) alert(error.message)
-    else { router.push('/'); router.refresh() }
+    if (error) toast(error.message, 'error')
+    else { toast('บันทึกแล้ว', 'success'); router.push('/'); router.refresh() }
     setUpdating(false)
   }
 
@@ -109,7 +111,7 @@ export default function EditAssetPage() {
         {/* Type (locked) */}
         <div className="bg-slate-50 rounded-2xl px-4 py-3 flex items-center gap-3 border border-slate-100">
           <span className="text-xl">{type === 'home' ? '🏠' : vehicleType === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}</span>
-          <span className="text-slate-500 font-medium text-sm">{type === 'home' ? 'Property' : vehicleType || 'รถ'}</span>
+          <span className="text-slate-500 font-medium text-sm">{type === 'home' ? 'บ้าน' : vehicleType || 'รถ'}</span>
         </div>
 
         <form onSubmit={handleUpdate} className="space-y-4">

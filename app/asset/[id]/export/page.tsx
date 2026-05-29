@@ -3,10 +3,12 @@
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useParams, useRouter } from 'next/navigation'
+import { useFeedback } from '../../../components/Feedback'
 
 export default function ExportPage() {
   const { id } = useParams()
   const router = useRouter()
+  const { toast } = useFeedback()
   const printRef = useRef<HTMLDivElement>(null)
   const [asset, setAsset] = useState<any>(null)
   const [logs, setLogs] = useState<any[]>([])
@@ -89,7 +91,7 @@ export default function ExportPage() {
       pdf.save(`${asset?.name || 'asset'}-history.pdf`)
     } catch (err) {
       console.error('Export error:', err)
-      alert('Export ไม่สำเร็จ: ' + (err as any)?.message)
+      toast('Export ไม่สำเร็จ: ' + (err as any)?.message, 'error')
     }
     setExporting(false)
   }
@@ -102,7 +104,7 @@ export default function ExportPage() {
 
   const totalCost = logs.reduce((sum, l) => sum + (l.cost || 0), 0)
   const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'
-  const assetTypeLabel = asset?.type === 'home' ? 'Property' : asset?.vehicle_type || 'Vehicle'
+  const assetTypeLabel = asset?.type === 'home' ? 'บ้าน' : asset?.vehicle_type || 'รถ'
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans">

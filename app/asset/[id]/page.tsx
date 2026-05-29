@@ -6,10 +6,12 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import BottomNav from '../../components/BottomNav'
 import PageHeader from '../../components/PageHeader'
+import { useFeedback } from '../../components/Feedback'
 
 export default function AssetDetailPage() {
   const { id } = useParams()
   const router = useRouter()
+  const { confirm, toast } = useFeedback()
   const [asset, setAsset] = useState<any>(null)
   const [spaces, setSpaces] = useState<any[]>([])
   const [allLogs, setAllLogs] = useState<any[]>([])
@@ -59,7 +61,7 @@ export default function AssetDetailPage() {
   const handleAddSpace = async () => {
     if (!newSpaceName) return
     const { error } = await supabase.from('spaces').insert([{ name: newSpaceName, asset_id: id }])
-    if (error) alert(error.message)
+    if (error) toast(error.message, 'error')
     else { setNewSpaceName(''); setIsSpaceModalOpen(false); fetchData(); }
   }
 
@@ -68,23 +70,23 @@ export default function AssetDetailPage() {
     const { error } = await supabase.from('equipments').insert([{ 
       name: newEqName, brand: newEqBrand, space_id: selectedSpaceId 
     }])
-    if (error) alert(error.message)
+    if (error) toast(error.message, 'error')
     else { setNewEqName(''); setNewEqBrand(''); setIsEqModalOpen(false); fetchData(); }
   }
 
   const handleDeleteSpace = async (spaceId: string) => {
-    if (!confirm('ยืนยันการลบพื้นที่นี้? ข้อมูลข้างในจะหายทั้งหมด')) return
+    if (!await confirm({ title: 'ลบพื้นที่นี้?', message: 'ข้อมูลและอุปกรณ์ข้างในจะหายทั้งหมด', confirmText: 'ลบ', danger: true })) return
     const { error } = await supabase.from('spaces').delete().eq('id', spaceId)
-    if (error) alert(error.message)
-    else fetchData()
+    if (error) toast(error.message, 'error')
+    else { toast('ลบแล้ว', 'success'); fetchData() }
   }
 
   const handleDeleteEquipment = async (e: React.MouseEvent, eqId: string, eqName: string) => {
     e.preventDefault()
-    if (!confirm(`ยืนยันการลบ "${eqName}"? ประวัติทั้งหมดจะหายไปด้วย`)) return
+    if (!await confirm({ title: `ลบ "${eqName}"?`, message: 'ประวัติทั้งหมดจะหายไปด้วย', confirmText: 'ลบ', danger: true })) return
     const { error } = await supabase.from('equipments').delete().eq('id', eqId)
-    if (error) alert(error.message)
-    else fetchData()
+    if (error) toast(error.message, 'error')
+    else { toast('ลบแล้ว', 'success'); fetchData() }
   }
 
   if (loading) return (
@@ -96,7 +98,7 @@ export default function AssetDetailPage() {
   return (
     <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-24 text-slate-900">
 
-      <PageHeader title={asset?.name || 'Asset'} backHref="/"
+      <PageHeader title={asset?.name || 'ทรัพย์สิน'} backHref="/"
         rightElement={
           <div className="flex items-center gap-2">
             <Link href={`/asset/${id}/export`} className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/20 active:bg-white/30 transition-all">
@@ -124,7 +126,7 @@ export default function AssetDetailPage() {
           }
         </div>
         <div>
-          <p className="text-slate-500 text-xs">{asset?.asset_number || 'No ID'}</p>
+          <p className="text-slate-500 text-xs">{asset?.asset_number || 'ไม่มีเลขทะเบียน'}</p>
           <p className="text-blue-600 font-bold text-base mt-0.5">฿{asset?.purchase_price?.toLocaleString() || '0'}</p>
           <p className="text-slate-400 text-xs mt-0.5">
             {asset?.type === 'home' ? (asset?.area_size || '-') : ((asset?.mileage_at_purchase?.toLocaleString() || '-') + ' km')}
@@ -153,7 +155,7 @@ export default function AssetDetailPage() {
             <div className="flex justify-between items-center">
               <h3 className="text-slate-800 font-bold text-base">โครงสร้าง</h3>
               <button onClick={() => setIsSpaceModalOpen(true)} className="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full active:scale-95 transition-all">
-                {asset?.type === 'home' ? '+ Add Space' : '+ Add System'}
+                {asset?.type === 'home' ? '+ เพิ่มพื้นที่' : '+ เพิ่มระบบ'}
               </button>
             </div>
             {spaces.map(space => (
@@ -163,7 +165,7 @@ export default function AssetDetailPage() {
                   <div className="flex gap-2">
                     <button onClick={() => handleDeleteSpace(space.id)} className="text-slate-300 hover:text-red-400 text-sm">🗑️</button>
                     <button onClick={() => { setSelectedSpaceId(space.id); setIsEqModalOpen(true) }}
-                      className="bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1.5 rounded-xl">+ Item</button>
+                      className="bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1.5 rounded-xl">+ เพิ่ม</button>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -197,7 +199,7 @@ export default function AssetDetailPage() {
         {activeTab === 'history' && (
           <div className="space-y-3">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-slate-800 font-bold text-base">Records ({allLogs.length})</h3>
+              <h3 className="text-slate-800 font-bold text-base">ประวัติ ({allLogs.length})</h3>
               <p className="text-blue-600 font-bold text-sm">฿{allLogs.reduce((sum, log) => sum + log.cost, 0).toLocaleString()}</p>
             </div>
             {allLogs.map(log => (
@@ -216,7 +218,7 @@ export default function AssetDetailPage() {
                   {log.next_service_date && (
                     <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
                       <span className="text-[10px]">⏳</span>
-                      <p className="text-amber-500 text-[11px] font-bold">Next: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}</p>
+                      <p className="text-amber-500 text-[11px] font-bold">ครั้งต่อไป: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}</p>
                     </div>
                   )}
                 </div>
@@ -231,7 +233,7 @@ export default function AssetDetailPage() {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-28 z-50">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="text-slate-800 font-bold text-lg mb-5">
-              {isSpaceModalOpen ? (asset?.type === 'home' ? 'New Room' : 'New System') : (asset?.type === 'home' ? 'New Equipment' : 'New Part')}
+              {isSpaceModalOpen ? (asset?.type === 'home' ? 'เพิ่มห้อง' : 'เพิ่มระบบ') : (asset?.type === 'home' ? 'เพิ่มอุปกรณ์' : 'เพิ่มชิ้นส่วน')}
             </h3>
             <div>
               {isSpaceModalOpen ? (
@@ -245,11 +247,11 @@ export default function AssetDetailPage() {
               )}
             </div>
             <div className="flex gap-2 mt-5">
-              <button onClick={() => { setIsSpaceModalOpen(false); setIsEqModalOpen(false) }} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">Cancel</button>
+              <button onClick={() => { setIsSpaceModalOpen(false); setIsEqModalOpen(false) }} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
               <button onClick={isSpaceModalOpen ? handleAddSpace : handleAddEquipment}
                 className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md"
               >
-                Save
+                บันทึก
               </button>
             </div>
           </div>
