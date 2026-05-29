@@ -60,13 +60,6 @@ export default function RemindersPage() {
     }
   }
 
-  // ✅ ทำแล้ว — ล้าง next_service_date ออก
-  const handleMarkDone = async (taskId: string) => {
-    if (!confirm('ยืนยันว่าดำเนินการเรียบร้อยแล้ว?')) return
-    await supabase.from('maintenance_logs').update({ next_service_date: null }).eq('id', taskId)
-    fetchData()
-  }
-
   // 📋 เปิด modal บันทึกการซ่อม
   const openLogModal = (task: any) => {
     setLogModal(task)
@@ -218,14 +211,10 @@ export default function RemindersPage() {
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-2 pt-3 border-t border-slate-50">
-                      <button onClick={() => handleMarkDone(task.id)}
-                        className="flex-1 py-2 rounded-xl bg-green-50 text-green-600 font-bold text-xs active:scale-95 transition-all border border-green-100">
-                        ✅ ทำแล้ว
-                      </button>
+                    {/* Action Button */}
+                    <div className="pt-3 border-t border-slate-50">
                       <button onClick={() => openLogModal(task)}
-                        className="flex-1 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs active:scale-95 transition-all shadow-sm">
+                        className="w-full py-2 rounded-xl bg-blue-600 text-white font-bold text-xs active:scale-95 transition-all shadow-sm">
                         📋 บันทึกการซ่อม
                       </button>
                     </div>
