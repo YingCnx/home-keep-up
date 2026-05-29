@@ -47,13 +47,15 @@ export default function ExportPage() {
     setExporting(true)
     try {
       const html2canvas = (await import('html2canvas')).default
-      const jsPDF = (await import('jspdf')).default
+      const jspdfModule = await import('jspdf')
+      const jsPDF = jspdfModule.jsPDF || jspdfModule.default
 
       const canvas = await html2canvas(printRef.current, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
+        logging: false,
       })
 
       const imgData = canvas.toDataURL('image/png')
@@ -79,7 +81,8 @@ export default function ExportPage() {
 
       pdf.save(`${asset?.name || 'asset'}-history.pdf`)
     } catch (err) {
-      alert('Export ไม่สำเร็จ กรุณาลองใหม่')
+      console.error('Export error:', err)
+      alert('Export ไม่สำเร็จ: ' + (err as any)?.message)
     }
     setExporting(false)
   }
