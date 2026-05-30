@@ -129,8 +129,8 @@ export default function AssetDetailPage() {
 
   if (loading) return (
     <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-24">
-      <div className="h-14 bg-blue-600 mb-4" />
-      <div className="mx-5 mb-5 h-24 bg-blue-50 rounded-3xl animate-pulse" />
+      <div className="h-14 bg-[#1B2F5E] mb-4" />
+      <div className="mx-5 mb-5 h-24 bg-[#E6F9F7] rounded-3xl animate-pulse" />
       <div className="px-5">
         <div className="flex gap-2 mb-5">
           <div className="flex-1 h-9 bg-slate-100 rounded-xl animate-pulse" />
@@ -165,8 +165,8 @@ export default function AssetDetailPage() {
       />
 
       {/* Asset Info Banner */}
-      <div className="mx-5 mt-4 mb-5 bg-blue-50 rounded-3xl p-4 flex items-center gap-4 border border-blue-100">
-        <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-white border border-blue-100">
+      <div className="mx-5 mt-4 mb-5 bg-[#E6F9F7] rounded-3xl p-4 flex items-center gap-4 border border-[#B2EDE8]">
+        <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-white border border-[#B2EDE8]">
           {asset?.image_url
             ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
             : <div className="w-full h-full flex items-center justify-center text-blue-500">
@@ -176,7 +176,7 @@ export default function AssetDetailPage() {
         </div>
         <div>
           <p className="text-slate-500 text-xs">{asset?.asset_number || 'ไม่มีเลขทะเบียน'}</p>
-          <p className="text-blue-600 font-bold text-base mt-0.5">฿{asset?.purchase_price?.toLocaleString() || '0'}</p>
+          <p className="text-[#2ABFAB] font-bold text-base mt-0.5">฿{asset?.purchase_price?.toLocaleString() || '0'}</p>
           <p className="text-slate-400 text-xs mt-0.5">
             {asset?.type === 'home' ? (asset?.area_size || '-') : ((asset?.mileage_at_purchase?.toLocaleString() || '-') + ' km')}
           </p>
@@ -189,17 +189,17 @@ export default function AssetDetailPage() {
         {/* Tabs */}
         <div className="flex gap-2 mb-5">
           <button onClick={() => setActiveTab('systems')}
-            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'systems' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'systems' ? 'bg-[#1B2F5E] text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
             {asset?.type === 'home' ? 'ห้องและอุปกรณ์' : 'ระบบและชิ้นส่วน'}
           </button>
           {asset?.type === 'vehicle' && (
             <button onClick={() => setActiveTab('mileage')}
-              className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'mileage' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+              className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'mileage' ? 'bg-[#1B2F5E] text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
               ไมล์
             </button>
           )}
           <button onClick={() => setActiveTab('history')}
-            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'history' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'history' ? 'bg-[#1B2F5E] text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
             ประวัติ
           </button>
         </div>
@@ -209,7 +209,7 @@ export default function AssetDetailPage() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="text-slate-800 font-bold text-base">โครงสร้าง</h3>
-              <button onClick={() => setIsSpaceModalOpen(true)} className="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full active:scale-95 transition-all">
+              <button onClick={() => setIsSpaceModalOpen(true)} className="bg-[#1B2F5E] text-white text-xs font-bold px-4 py-2 rounded-full active:scale-95 transition-all">
                 {asset?.type === 'home' ? '+ เพิ่มพื้นที่' : '+ เพิ่มระบบ'}
               </button>
             </div>
@@ -223,7 +223,7 @@ export default function AssetDetailPage() {
                 value={eqSearch}
                 onChange={e => setEqSearch(e.target.value)}
                 placeholder="ค้นหาอุปกรณ์..."
-                className="w-full bg-slate-50 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-slate-700 border-2 border-transparent focus:border-blue-300 outline-none transition-all"
+                className="w-full bg-slate-50 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-slate-700 border-2 border-transparent focus:border-[#2ABFAB] outline-none transition-all"
               />
               {eqSearch && (
                 <button onClick={() => setEqSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
@@ -245,7 +245,7 @@ export default function AssetDetailPage() {
                   <div className="flex gap-2">
                     <button onClick={() => handleDeleteSpace(space.id)} className="text-slate-300 hover:text-red-400"><TrashIcon className="w-4 h-4" /></button>
                     <button onClick={() => { setSelectedSpaceId(space.id); setIsEqModalOpen(true) }}
-                      className="bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1.5 rounded-xl">+ เพิ่ม</button>
+                      className="bg-[#E6F9F7] text-[#2ABFAB] text-xs font-bold px-3 py-1.5 rounded-xl">+ เพิ่ม</button>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -280,22 +280,22 @@ export default function AssetDetailPage() {
           <div className="space-y-4">
             {/* Summary card */}
             {mileageLogs.length > 0 ? (
-              <div className="bg-blue-600 rounded-3xl p-5 text-white">
+              <div className="bg-[#1B2F5E] rounded-3xl p-5 text-white">
                 <div className="flex items-center gap-2 mb-1">
-                  <GaugeIcon className="w-4 h-4 text-blue-200" />
-                  <p className="text-blue-200 text-xs font-medium">เลขไมล์ล่าสุด</p>
+                  <GaugeIcon className="w-4 h-4 text-[#A7EDE5]" />
+                  <p className="text-[#A7EDE5] text-xs font-medium">เลขไมล์ล่าสุด</p>
                 </div>
                 <p className="text-3xl font-bold">{mileageLogs[0].mileage.toLocaleString()} <span className="text-xl font-medium">km</span></p>
-                <p className="text-blue-200 text-xs mt-1">{new Date(mileageLogs[0].recorded_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                <p className="text-[#A7EDE5] text-xs mt-1">{new Date(mileageLogs[0].recorded_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 {mileageLogs.length > 1 && (
                   <div className="mt-3 pt-3 border-t border-white/20 flex justify-between text-xs">
-                    <span className="text-blue-200">ระยะตั้งแต่ครั้งก่อน</span>
+                    <span className="text-[#A7EDE5]">ระยะตั้งแต่ครั้งก่อน</span>
                     <span className="font-bold text-white">+{(mileageLogs[0].mileage - mileageLogs[1].mileage).toLocaleString()} km</span>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="bg-blue-50 rounded-3xl p-6 text-center border border-blue-100">
+              <div className="bg-[#E6F9F7] rounded-3xl p-6 text-center border border-[#B2EDE8]">
                 <GaugeIcon className="w-10 h-10 text-blue-300 mx-auto mb-2" />
                 <p className="text-slate-500 font-bold text-sm">ยังไม่มีข้อมูลเลขไมล์</p>
                 <p className="text-slate-400 text-xs mt-1">บันทึกเลขไมล์เพื่อติดตามการใช้งาน</p>
@@ -303,7 +303,7 @@ export default function AssetDetailPage() {
             )}
 
             <button onClick={() => setIsMileageModalOpen(true)}
-              className="w-full py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
+              className="w-full py-3.5 bg-[#1B2F5E] text-white rounded-2xl font-bold text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               บันทึกเลขไมล์
             </button>
@@ -317,7 +317,7 @@ export default function AssetDetailPage() {
                   const diff = prev ? log.mileage - prev.mileage : null
                   return (
                     <div key={log.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 bg-[#E6F9F7] rounded-xl flex items-center justify-center flex-shrink-0">
                         <GaugeIcon className="w-5 h-5 text-blue-500" />
                       </div>
                       <div className="flex-1">
@@ -344,18 +344,18 @@ export default function AssetDetailPage() {
           <div className="space-y-3">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-slate-800 font-bold text-base">ประวัติ ({allLogs.length})</h3>
-              <p className="text-blue-600 font-bold text-sm">฿{allLogs.reduce((sum, log) => sum + log.cost, 0).toLocaleString()}</p>
+              <p className="text-[#2ABFAB] font-bold text-sm">฿{allLogs.reduce((sum, log) => sum + log.cost, 0).toLocaleString()}</p>
             </div>
             {allLogs.map(log => (
               <div key={log.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">{log.equipments?.spaces?.name}</span>
+                  <span className="bg-[#E6F9F7] text-[#2ABFAB] text-[10px] font-bold px-2.5 py-1 rounded-lg">{log.equipments?.spaces?.name}</span>
                   <span className="text-slate-300 text-xs">›</span>
                   <span className="text-slate-600 text-[11px] font-medium">{log.equipments?.name}</span>
                 </div>
                 <div className="flex justify-between items-start mb-3">
                   <p className="text-slate-800 font-bold text-sm flex-1 pr-3">{log.detail}</p>
-                  <p className="text-blue-600 font-bold text-sm">฿{log.cost.toLocaleString()}</p>
+                  <p className="text-[#2ABFAB] font-bold text-sm">฿{log.cost.toLocaleString()}</p>
                 </div>
                 <div className="flex justify-between items-center pt-3 border-t border-slate-50">
                   <p className="text-slate-400 text-[11px]">{new Date(log.service_date).toLocaleDateString('th-TH')}</p>
@@ -393,7 +393,7 @@ export default function AssetDetailPage() {
             <div className="flex gap-2 mt-5">
               <button onClick={() => { setIsSpaceModalOpen(false); setIsEqModalOpen(false) }} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
               <button onClick={isSpaceModalOpen ? handleAddSpace : handleAddEquipment}
-                className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md"
+                className="flex-1 py-3.5 bg-[#1B2F5E] text-white rounded-2xl font-bold text-sm shadow-md"
               >
                 บันทึก
               </button>
@@ -411,27 +411,27 @@ export default function AssetDetailPage() {
               <div>
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">เลขไมล์ (km)</label>
                 <input type="number" autoFocus
-                  className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-bold text-slate-700 text-2xl"
+                  className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-[#2ABFAB] transition-all font-bold text-slate-700 text-2xl"
                   value={newMileage} onChange={e => setNewMileage(e.target.value)} placeholder="0" />
                 {mileageLogs[0] && <p className="text-slate-400 text-xs mt-1.5 ml-1">ครั้งก่อน: {mileageLogs[0].mileage.toLocaleString()} km</p>}
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">วันที่บันทึก</label>
                 <input type="date"
-                  className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
+                  className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-[#2ABFAB] transition-all font-medium text-slate-700 text-sm"
                   value={mileageDate} onChange={e => setMileageDate(e.target.value)} />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">หมายเหตุ <span className="normal-case font-medium opacity-50">(ถ้ามี)</span></label>
                 <input
-                  className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
+                  className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-[#2ABFAB] transition-all font-medium text-slate-700 text-sm"
                   value={mileageNote} onChange={e => setMileageNote(e.target.value)} placeholder="เช่น ก่อนเซอร์วิส, ทริปต่างจังหวัด" />
               </div>
             </div>
             <div className="flex gap-2 mt-6">
               <button onClick={() => setIsMileageModalOpen(false)} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
               <button onClick={handleAddMileage} disabled={savingMileage}
-                className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
+                className="flex-1 py-3.5 bg-[#1B2F5E] text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
                 {savingMileage ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
             </div>

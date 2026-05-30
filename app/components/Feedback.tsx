@@ -73,7 +73,7 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
                 {confirmState.cancelText || 'ยกเลิก'}
               </button>
               <button onClick={() => closeConfirm(true)}
-                className={`flex-1 py-3.5 text-white rounded-2xl font-bold text-sm shadow-md active:scale-95 transition-all ${confirmState.danger ? 'bg-red-500' : 'bg-blue-600'}`}>
+                className={`flex-1 py-3.5 text-white rounded-2xl font-bold text-sm shadow-md active:scale-95 transition-all ${confirmState.danger ? 'bg-red-500' : 'bg-[#1B2F5E]'}`}>
                 {confirmState.confirmText || 'ยืนยัน'}
               </button>
             </div>

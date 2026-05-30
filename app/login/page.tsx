@@ -14,22 +14,22 @@ export default function LoginPage() {
     <div className="max-w-md mx-auto min-h-screen bg-slate-50 flex flex-col font-sans">
 
       {/* Top Illustration */}
-      <div className="bg-blue-600 flex-1 flex flex-col items-center justify-center px-8 pb-10 relative overflow-hidden" style={{maxHeight: '55vh'}}>
-        <div className="absolute -right-10 -top-10 w-48 h-48 bg-blue-500 rounded-full opacity-50" />
-        <div className="absolute -left-6 bottom-0 w-32 h-32 bg-blue-400 rounded-full opacity-30" />
+      <div className="bg-[#1B2F5E] flex-1 flex flex-col items-center justify-center px-8 pb-10 relative overflow-hidden" style={{maxHeight: '55vh'}}>
+        <div className="absolute -right-10 -top-10 w-48 h-48 bg-[#2ABFAB] rounded-full opacity-50" />
+        <div className="absolute -left-6 bottom-0 w-32 h-32 bg-[#2ABFAB] rounded-full opacity-30" />
         <div className="relative z-10 text-center">
           <div className="w-28 h-28 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
             <img src="/logo.png" alt="Home Keep Up" className="w-24 h-24 object-contain" />
           </div>
-          <h1 className="text-white text-3xl font-bold mb-2">Home Keep Up</h1>
-          <p className="text-blue-200 text-sm font-medium">Every Maintenance Matters</p>
+          <h1 className="text-white text-3xl font-bold mb-2">KuBaan</h1>
+          <p className="text-[#A7EDE5] text-sm font-medium">คู่บ้าน ดูแลทุกเรื่องบ้านและรถ</p>
         </div>
       </div>
 
       {/* Bottom Login */}
       <div className="bg-white rounded-t-[2.5rem] px-8 pt-10 pb-12 shadow-lg -mt-6">
         <h2 className="text-slate-800 text-2xl font-bold mb-2">ยินดีต้อนรับ</h2>
-        <p className="text-slate-400 text-sm mb-8">ดูแลดูแลรายการของคุณในที่เดียว</p>
+        <p className="text-slate-400 text-sm mb-8">ดูแลบ้านและรถของคุณในที่เดียว</p>
 
         <button onClick={handleGoogleLogin}
           className="w-full bg-white border-2 border-slate-100 rounded-2xl p-4 flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all mb-4">

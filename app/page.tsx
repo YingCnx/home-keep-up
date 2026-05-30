@@ -9,22 +9,19 @@ import { useFeedback } from './components/Feedback'
 import { AssetIcon, HomeIcon, CheckCircleIcon } from './components/Icons'
 import { FEATURES } from './lib/features'
 import { AssetCardSkeleton, BannerSkeleton, StatsSkeleton } from './components/Skeleton'
+import { useProfile } from './lib/useProfile'
 
 export default function Dashboard() {
   const router = useRouter()
   const { confirm, toast } = useFeedback()
+  const { profile: myProfile } = useProfile()
   const [assets, setAssets] = useState<any[]>([])
   const [upcomingTasks, setUpcomingTasks] = useState<any[]>([])
   const [totalExpenses, setTotalExpenses] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
   const [showNotif, setShowNotif] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const notifRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user))
-  }, [])
 
   // ปิด dropdown เมื่อคลิกนอก
   useEffect(() => {
@@ -115,7 +112,9 @@ export default function Dashboard() {
     </div>
   )
 
-  const firstName = user?.user_metadata?.name?.split(' ')[0] || 'คุณ'
+  const displayName   = myProfile?.display_name || 'คุณ'
+  const firstName     = displayName.split(' ')[0]
+  const displayAvatar = myProfile?.avatar_url || null
   const overdueCount = upcomingTasks.filter(t => t.isOverdue).length
   const dueSoon = upcomingTasks.filter(t => !t.isOverdue).length
   const filteredAssets = assets.filter(a =>
@@ -128,7 +127,7 @@ export default function Dashboard() {
 
       {/* Top Bar */}
       <div className="flex justify-between items-center px-5 pt-12 pb-4">
-        <img src="/logo.png" alt="Home Keep Up" className="w-20 h-20 object-contain" />
+        <img src="/logo.png" alt="KuBaan" className="w-28 h-28 object-contain" />
         <div className="flex items-center gap-3">
 
           {/* Bell + Dropdown */}
@@ -190,7 +189,7 @@ export default function Dashboard() {
                 {upcomingTasks.length > 0 && (
                   <div className="border-t border-slate-50 p-3">
                     <Link href="/reminders" onClick={() => setShowNotif(false)}
-                      className="block w-full py-2.5 text-center text-blue-600 font-bold text-xs bg-blue-50 rounded-xl active:scale-95 transition-all">
+                      className="block w-full py-2.5 text-center text-[#2ABFAB] font-bold text-xs bg-[#E6F9F7] rounded-xl active:scale-95 transition-all">
                       ดูทั้งหมดและจัดการ →
                     </Link>
                   </div>
@@ -200,11 +199,17 @@ export default function Dashboard() {
           </div>
 
           <Link href="/profile">
-            <div className="w-11 h-11 rounded-2xl overflow-hidden border-2 border-slate-100">
-              {user?.user_metadata?.avatar_url
-                ? <img src={user.user_metadata.avatar_url} className="w-full h-full object-cover" alt="avatar" />
-                : <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">{firstName[0]}</div>
+            <div className="w-11 h-11 rounded-2xl overflow-hidden border-2 border-slate-100 bg-[#E6F9F7] flex items-center justify-center">
+              {displayAvatar
+                ? <img
+                    src={displayAvatar}
+                    className="w-full h-full object-cover"
+                    alt="avatar"
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }}
+                  />
+                : null
               }
+              <span className={`text-[#2ABFAB] font-bold text-lg ${displayAvatar ? 'hidden' : ''}`}>{firstName[0]}</span>
             </div>
           </Link>
         </div>
@@ -215,20 +220,20 @@ export default function Dashboard() {
         <h1 className="text-slate-900 text-2xl font-bold mb-5">{firstName}!</h1>
 
         {/* Banner Card */}
-        <div className="bg-blue-600 rounded-3xl p-5 mb-5 relative overflow-hidden">
-          <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-blue-500 rounded-full opacity-60" />
-          <div className="absolute right-4 top-4 w-16 h-16 bg-blue-400 rounded-full opacity-40" />
+        <div className="bg-[#1B2F5E] rounded-3xl p-5 mb-5 relative overflow-hidden">
+          <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-[#2ABFAB] rounded-full opacity-60" />
+          <div className="absolute right-4 top-4 w-16 h-16 bg-[#2ABFAB] rounded-full opacity-40" />
           <div className="relative z-10 flex justify-between items-start">
             <div>
-              <p className="text-blue-200 text-sm font-medium mb-3">รายการของคุณ</p>
+              <p className="text-[#A7EDE5] text-sm font-medium mb-3">รายการของคุณ</p>
               <div className="flex gap-6">
                 <div>
                   <p className="text-white text-3xl font-bold">{assets.length}</p>
-                  <p className="text-blue-200 text-xs mt-0.5">ทั้งหมด</p>
+                  <p className="text-[#A7EDE5] text-xs mt-0.5">ทั้งหมด</p>
                 </div>
                 <div>
                   <p className="text-white text-3xl font-bold">{upcomingTasks.length}</p>
-                  <p className="text-blue-200 text-xs mt-0.5">ใกล้ถึงกำหนด</p>
+                  <p className="text-[#A7EDE5] text-xs mt-0.5">ใกล้ถึงกำหนด</p>
                 </div>
               </div>
             </div>
@@ -271,8 +276,8 @@ export default function Dashboard() {
           </Link>
 
           <Link href="/reports">
-            <div className="bg-blue-600 rounded-2xl p-4 relative overflow-hidden active:scale-95 transition-all">
-              <div className="absolute -right-3 -bottom-3 w-14 h-14 bg-blue-500 rounded-full opacity-50" />
+            <div className="bg-[#1B2F5E] rounded-2xl p-4 relative overflow-hidden active:scale-95 transition-all">
+              <div className="absolute -right-3 -bottom-3 w-14 h-14 bg-[#2ABFAB] rounded-full opacity-50" />
               <div className="flex justify-between items-start mb-3">
                 <p className="text-white font-bold text-sm">ค่าใช้จ่าย</p>
                 <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
@@ -280,7 +285,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <p className="text-white text-2xl font-bold">฿{totalExpenses >= 1000 ? (totalExpenses/1000).toFixed(1)+'k' : totalExpenses.toLocaleString()}</p>
-              <p className="text-blue-200 text-xs mt-0.5">รวมทั้งหมด</p>
+              <p className="text-[#A7EDE5] text-xs mt-0.5">รวมทั้งหมด</p>
             </div>
           </Link>
         </div>
@@ -290,7 +295,7 @@ export default function Dashboard() {
           <div className="mb-6">
             <div className="flex justify-between items-center mb-3">
               <h2 className="text-slate-800 font-bold text-base">ใกล้ถึงกำหนด</h2>
-              <Link href="/reminders" className="text-blue-600 text-xs font-bold">ดูทั้งหมด →</Link>
+              <Link href="/reminders" className="text-[#2ABFAB] text-xs font-bold">ดูทั้งหมด →</Link>
             </div>
             <div className="space-y-2">
               {upcomingTasks.slice(0, 3).map(task => {
@@ -325,7 +330,7 @@ export default function Dashboard() {
         {/* Properties List */}
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-slate-800 font-bold text-base">รายการทั้งหมด</h2>
-          <Link href="/add-asset" className="text-blue-600 text-xs font-bold bg-blue-50 px-3 py-1.5 rounded-full">+ เพิ่มใหม่</Link>
+          <Link href="/add-asset" className="text-[#2ABFAB] text-xs font-bold bg-[#E6F9F7] px-3 py-1.5 rounded-full">+ เพิ่มใหม่</Link>
         </div>
 
         {/* Search Bar */}
@@ -338,7 +343,7 @@ export default function Dashboard() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="ค้นหารายการ..."
-              className="w-full bg-slate-50 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-slate-700 border-2 border-transparent focus:border-blue-300 outline-none transition-all"
+              className="w-full bg-slate-50 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-slate-700 border-2 border-transparent focus:border-[#2ABFAB] outline-none transition-all"
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
@@ -356,7 +361,7 @@ export default function Dashboard() {
                   <div className="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100">
                     {asset.image_url
                       ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
-                      : <div className={`w-full h-full flex items-center justify-center ${asset.type === 'home' ? 'bg-violet-50 text-violet-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-sky-50 text-sky-500' : 'bg-blue-50 text-blue-600'}`}>
+                      : <div className={`w-full h-full flex items-center justify-center ${asset.type === 'home' ? 'bg-violet-50 text-violet-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-sky-50 text-sky-500' : 'bg-[#E6F9F7] text-[#2ABFAB]'}`}>
                           <AssetIcon type={asset.type} vehicleType={asset.vehicle_type} className="w-7 h-7" />
                         </div>
                     }
@@ -364,10 +369,10 @@ export default function Dashboard() {
                   <div className="flex-1 min-w-0">
                     <h3 className="text-slate-800 font-bold text-base truncate">{asset.name}</h3>
                     <p className="text-slate-400 text-xs">{asset.asset_number || 'ไม่มีเลขทะเบียน'}</p>
-                    <p className="text-blue-600 font-bold text-sm mt-1">฿{asset.total_cost.toLocaleString()}</p>
+                    <p className="text-[#2ABFAB] font-bold text-sm mt-1">฿{asset.total_cost.toLocaleString()}</p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${asset.type === 'home' ? 'bg-violet-50 text-violet-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-sky-50 text-sky-500' : 'bg-blue-50 text-blue-600'}`}>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${asset.type === 'home' ? 'bg-violet-50 text-violet-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-sky-50 text-sky-500' : 'bg-[#E6F9F7] text-[#2ABFAB]'}`}>
                       {asset.type === 'home' ? 'บ้าน' : asset.vehicle_type || 'รถ'}
                     </span>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -375,7 +380,7 @@ export default function Dashboard() {
                 </div>
               </Link>
               <div className="flex border-t border-slate-50">
-                <Link href={`/edit-asset/${asset.id}`} className="flex-1 py-2.5 text-center text-blue-600 text-xs font-bold border-r border-slate-50 active:bg-slate-50">แก้ไข</Link>
+                <Link href={`/edit-asset/${asset.id}`} className="flex-1 py-2.5 text-center text-[#2ABFAB] text-xs font-bold border-r border-slate-50 active:bg-slate-50">แก้ไข</Link>
                 <button onClick={(e) => handleDelete(e, asset.id, asset.name)} className="flex-1 py-2.5 text-center text-red-400 text-xs font-bold active:bg-slate-50">ลบ</button>
               </div>
             </div>
@@ -387,12 +392,12 @@ export default function Dashboard() {
               {searchQuery ? (
                 <>
                   <p className="text-slate-400 font-medium mb-2">ไม่พบ "{searchQuery}"</p>
-                  <button onClick={() => setSearchQuery('')} className="text-blue-600 text-sm font-bold">ล้างการค้นหา</button>
+                  <button onClick={() => setSearchQuery('')} className="text-[#2ABFAB] text-sm font-bold">ล้างการค้นหา</button>
                 </>
               ) : (
                 <>
                   <p className="text-slate-400 font-medium mb-4">ยังไม่มีรายการ</p>
-                  <Link href="/add-asset" className="inline-block bg-blue-600 text-white text-sm font-bold px-6 py-2.5 rounded-full">+ เพิ่มรายการ</Link>
+                  <Link href="/add-asset" className="inline-block bg-[#1B2F5E] text-white text-sm font-bold px-6 py-2.5 rounded-full">+ เพิ่มรายการ</Link>
                 </>
               )}
             </div>

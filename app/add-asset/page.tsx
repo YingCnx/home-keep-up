@@ -81,7 +81,7 @@ export default function AddAssetPage() {
     setLoading(false)
   }
 
-  const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
+  const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-[#2ABFAB] transition-all font-medium text-slate-700 text-sm"
 
   return (
     <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-10 text-slate-900">
@@ -115,7 +115,7 @@ export default function AddAssetPage() {
             { id: 'car', label: 'รถ', Icon: CarIcon }
           ].map(item => (
             <button key={item.id} type="button" onClick={() => setSelector(item.id as any)}
-              className={`flex-1 py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-0.5 transition-all ${selector === item.id ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}`}>
+              className={`flex-1 py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-0.5 transition-all ${selector === item.id ? 'bg-[#1B2F5E] text-white shadow-md' : 'text-slate-400'}`}>
               <item.Icon className="w-5 h-5" />
               <span>{item.label}</span>
             </button>
@@ -149,7 +149,7 @@ export default function AddAssetPage() {
 
           <div>
             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">ราคาซื้อ (฿)</label>
-            <input type="number" className={`${inputClass} text-blue-600 font-bold text-lg`} placeholder="0"
+            <input type="number" className={`${inputClass} text-[#2ABFAB] font-bold text-lg`} placeholder="0"
               value={formData.purchase_price} onChange={e => setFormData({...formData, purchase_price: e.target.value})} />
           </div>
 
@@ -160,7 +160,7 @@ export default function AddAssetPage() {
           </div>
 
           <button type="submit" disabled={loading}
-            className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-base shadow-md active:scale-95 transition-all disabled:opacity-60 mt-2">
+            className="w-full bg-[#1B2F5E] text-white py-4 rounded-2xl font-bold text-base shadow-md active:scale-95 transition-all disabled:opacity-60 mt-2">
             {loading ? 'กำลังบันทึก...' : 'บันทึกรายการ'}
           </button>
         </form>

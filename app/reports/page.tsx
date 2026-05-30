@@ -64,7 +64,7 @@ export default function ReportsPage() {
 
   if (loading) return (
     <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24">
-      <div className="h-14 bg-blue-600 mb-5" />
+      <div className="h-14 bg-[#1B2F5E] mb-5" />
       <div className="px-5 space-y-4">
         <div className="h-20 bg-white rounded-3xl animate-pulse border border-slate-100" />
         <div className="h-52 bg-white rounded-3xl animate-pulse border border-slate-100" />
@@ -76,7 +76,7 @@ export default function ReportsPage() {
   return (
     <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24">
 
-      <PageHeader title="การเงิน" />
+      <PageHeader title="การเงิน" showBack={false} />
 
       <div className="px-5 pt-5 space-y-4">
 
@@ -93,11 +93,11 @@ export default function ReportsPage() {
             <p className="text-slate-800 font-bold text-sm">ค่าใช้จ่าย</p>
             <div className="flex gap-1 bg-slate-50 p-1 rounded-xl">
               <button onClick={() => setPeriod('monthly')}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${period === 'monthly' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${period === 'monthly' ? 'bg-[#1B2F5E] text-white' : 'text-slate-400'}`}>
                 รายเดือน
               </button>
               <button onClick={() => setPeriod('yearly')}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${period === 'yearly' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${period === 'yearly' ? 'bg-[#1B2F5E] text-white' : 'text-slate-400'}`}>
                 รายปี
               </button>
             </div>
@@ -111,7 +111,7 @@ export default function ReportsPage() {
                   tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
                 <Tooltip formatter={(v: any) => [`฿${v.toLocaleString()}`, 'ค่าใช้จ่าย']}
                   contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: 12 }} />
-                <Bar dataKey="value" fill="#2563EB" radius={[6,6,0,0]} />
+                <Bar dataKey="value" fill="#1B2F5E" radius={[6,6,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -125,16 +125,16 @@ export default function ReportsPage() {
           <div className="space-y-3">
             {assetData.map((asset, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${asset.type === 'home' ? 'bg-violet-50 text-violet-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-sky-50 text-sky-500' : 'bg-blue-50 text-blue-600'}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${asset.type === 'home' ? 'bg-violet-50 text-violet-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-sky-50 text-sky-500' : 'bg-[#E6F9F7] text-[#2ABFAB]'}`}>
                   <AssetIcon type={asset.type} vehicleType={asset.vehicle_type} className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between mb-1">
                     <p className="text-slate-800 font-bold text-sm truncate">{asset.name}</p>
-                    <p className="text-blue-600 font-bold text-sm">฿{asset.total.toLocaleString()}</p>
+                    <p className="text-[#2ABFAB] font-bold text-sm">฿{asset.total.toLocaleString()}</p>
                   </div>
                   <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-600 rounded-full transition-all"
+                    <div className="h-full bg-[#1B2F5E] rounded-full transition-all"
                       style={{ width: `${totalSpent > 0 ? (asset.total / totalSpent) * 100 : 0}%` }} />
                   </div>
                 </div>

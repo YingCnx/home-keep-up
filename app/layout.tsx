@@ -10,13 +10,13 @@ const prompt = Prompt({
 })
 
 export const metadata: Metadata = {
-  title: 'Home Keep Up',
-  description: 'บันทึกและติดตามการบำรุงรักษาบ้านและรถ',
+  title: 'KuBaan',
+  description: 'คู่บ้าน ดูแลทุกเรื่องบ้านและรถ',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Home Keep Up',
+    title: 'KuBaan',
   },
   icons: {
     icon: '/icon-192.png',
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#2563EB',
+  themeColor: '#1B2F5E',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,

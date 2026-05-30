@@ -79,11 +79,11 @@ export default function EditAssetPage() {
     setUpdating(false)
   }
 
-  const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
+  const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-[#2ABFAB] transition-all font-medium text-slate-700 text-sm"
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-white">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-[#1B2F5E] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
@@ -140,7 +140,7 @@ export default function EditAssetPage() {
 
           <div>
             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">ราคาซื้อ (฿)</label>
-            <input type="number" className={`${inputClass} text-blue-600 font-bold text-lg`}
+            <input type="number" className={`${inputClass} text-[#2ABFAB] font-bold text-lg`}
               value={formData.purchase_price} onChange={e => setFormData({...formData, purchase_price: e.target.value})} />
           </div>
 
@@ -151,7 +151,7 @@ export default function EditAssetPage() {
           </div>
 
           <button type="submit" disabled={updating}
-            className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-base shadow-md active:scale-95 transition-all disabled:opacity-60">
+            className="w-full bg-[#1B2F5E] text-white py-4 rounded-2xl font-bold text-base shadow-md active:scale-95 transition-all disabled:opacity-60">
             {updating ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}
           </button>
         </form>

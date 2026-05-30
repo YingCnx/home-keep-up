@@ -129,12 +129,12 @@ export default function RemindersPage() {
     : allLogs.filter(l => l.equipments?.spaces?.assets?.id === assetFilter)
   const totalCost = filteredLogs.reduce((sum, log) => sum + (log.cost || 0), 0)
 
-  const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
+  const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-[#2ABFAB] transition-all font-medium text-slate-700 text-sm"
   const labelClass = "text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block"
 
   if (loading) return (
     <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24">
-      <div className="h-14 bg-blue-600" />
+      <div className="h-14 bg-[#1B2F5E]" />
       <div className="px-5 pt-5">
         <div className="flex gap-2 mb-5">
           <div className="flex-1 h-9 bg-slate-200 rounded-xl animate-pulse" />
@@ -153,18 +153,18 @@ export default function RemindersPage() {
   return (
     <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24">
 
-      <PageHeader title="บำรุงรักษา" />
+      <PageHeader title="บำรุงรักษา" showBack={false} />
 
       <div className="px-5 pt-5">
 
         {/* Tab Selector */}
         <div className="flex gap-2 mb-5">
           <button onClick={() => setActiveTab('reminders')}
-            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'reminders' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'reminders' ? 'bg-[#1B2F5E] text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
             แจ้งเตือน
           </button>
           <button onClick={() => setActiveTab('history')}
-            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'history' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'history' ? 'bg-[#1B2F5E] text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
             ประวัติทั้งหมด
           </button>
         </div>
@@ -189,11 +189,11 @@ export default function RemindersPage() {
 
             {notifStatus === 'default' && (
               <button onClick={requestNotification}
-                className="w-full mb-5 bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 shadow-md active:scale-95 transition-all">
+                className="w-full mb-5 bg-[#1B2F5E] text-white rounded-2xl p-4 flex items-center gap-3 shadow-md active:scale-95 transition-all">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0"><BellIcon className="w-5 h-5" /></div>
                 <div className="text-left flex-1">
                   <p className="font-bold text-sm">เปิดการแจ้งเตือน</p>
-                  <p className="text-blue-200 text-[11px]">รับแจ้งเตือนเมื่อใกล้ถึงกำหนด</p>
+                  <p className="text-[#A7EDE5] text-[11px]">รับแจ้งเตือนเมื่อใกล้ถึงกำหนด</p>
                 </div>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
               </button>
@@ -208,7 +208,7 @@ export default function RemindersPage() {
             <div className="flex gap-2 mb-4">
               {[{key:'all',label:'ทั้งหมด'},{key:'overdue',label:'เลยกำหนด'},{key:'urgent',label:'ด่วน'}].map(tab => (
                 <button key={tab.key} onClick={() => setFilter(tab.key as any)}
-                  className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${filter === tab.key ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                  className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${filter === tab.key ? 'bg-[#1B2F5E] text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
                   {tab.label}
                 </button>
               ))}
@@ -224,10 +224,10 @@ export default function RemindersPage() {
                   <div key={task.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
                     {/* Info Row */}
                     <div className="flex items-start gap-3 mb-3">
-                      <div className={`w-11 h-11 rounded-xl flex-shrink-0 overflow-hidden border ${isOverdue ? 'border-red-100' : isUrgent ? 'border-amber-100' : 'border-blue-100'}`}>
+                      <div className={`w-11 h-11 rounded-xl flex-shrink-0 overflow-hidden border ${isOverdue ? 'border-red-100' : isUrgent ? 'border-amber-100' : 'border-[#B2EDE8]'}`}>
                         {asset?.image_url
                           ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
-                          : <div className={`w-full h-full flex items-center justify-center ${isOverdue ? 'bg-red-50 text-red-400' : isUrgent ? 'bg-amber-50 text-amber-500' : 'bg-blue-50 text-blue-500'}`}><AssetIcon type={asset?.type} vehicleType={asset?.vehicle_type} className="w-5 h-5" /></div>
+                          : <div className={`w-full h-full flex items-center justify-center ${isOverdue ? 'bg-red-50 text-red-400' : isUrgent ? 'bg-amber-50 text-amber-500' : 'bg-[#E6F9F7] text-blue-500'}`}><AssetIcon type={asset?.type} vehicleType={asset?.vehicle_type} className="w-5 h-5" /></div>
                         }
                       </div>
                       <div className="flex-1 min-w-0">
@@ -236,7 +236,7 @@ export default function RemindersPage() {
                         <p className="text-slate-400 text-[11px] mt-0.5">@ {task.equipments?.name}</p>
                       </div>
                       <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${isOverdue ? 'bg-red-50 text-red-500' : isUrgent ? 'bg-amber-50 text-amber-500' : 'bg-blue-50 text-blue-500'}`}>
+                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${isOverdue ? 'bg-red-50 text-red-500' : isUrgent ? 'bg-amber-50 text-amber-500' : 'bg-[#E6F9F7] text-blue-500'}`}>
                           {isOverdue ? `เลย ${Math.abs(days)}d` : days === 0 ? 'วันนี้!' : `${days}d`}
                         </span>
                         <p className="text-[10px] text-slate-400">
@@ -248,7 +248,7 @@ export default function RemindersPage() {
                     {/* Action Button */}
                     <div className="pt-3 border-t border-slate-50">
                       <button onClick={() => openLogModal(task)}
-                        className="w-full py-2 rounded-xl bg-blue-600 text-white font-bold text-xs active:scale-95 transition-all shadow-sm">
+                        className="w-full py-2 rounded-xl bg-[#1B2F5E] text-white font-bold text-xs active:scale-95 transition-all shadow-sm">
                         บันทึกการซ่อม
                       </button>
                     </div>
@@ -272,12 +272,12 @@ export default function RemindersPage() {
             {historyAssets.length > 0 && (
               <div className="flex gap-2 mb-4 overflow-x-auto pb-1 -mx-5 px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <button onClick={() => setAssetFilter('all')}
-                  className={`flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all ${assetFilter === 'all' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                  className={`flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all ${assetFilter === 'all' ? 'bg-[#1B2F5E] text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
                   ทั้งหมด
                 </button>
                 {historyAssets.map(a => (
                   <button key={a.id} onClick={() => setAssetFilter(a.id)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 ${assetFilter === a.id ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                    className={`flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 ${assetFilter === a.id ? 'bg-[#1B2F5E] text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
                     <AssetIcon type={a.type} vehicleType={a.vehicle_type} className="w-4 h-4" />
                     <span className="max-w-[100px] truncate">{a.name}</span>
                   </button>
@@ -287,7 +287,7 @@ export default function RemindersPage() {
 
             <div className="flex justify-between items-center mb-4">
               <p className="text-slate-500 text-sm font-medium">{filteredLogs.length} รายการ</p>
-              <p className="text-blue-600 font-bold text-sm">฿{totalCost.toLocaleString()}</p>
+              <p className="text-[#2ABFAB] font-bold text-sm">฿{totalCost.toLocaleString()}</p>
             </div>
             <div className="space-y-3">
               {filteredLogs.map(log => {
@@ -299,7 +299,7 @@ export default function RemindersPage() {
                         ? <img src={asset.image_url} className="w-6 h-6 rounded-lg object-cover flex-shrink-0" alt={asset.name} />
                         : <AssetIcon type={asset?.type} vehicleType={asset?.vehicle_type} className="w-4 h-4 text-slate-400 flex-shrink-0" />
                       }
-                      <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">{asset?.name}</span>
+                      <span className="bg-[#E6F9F7] text-[#2ABFAB] text-[10px] font-bold px-2.5 py-1 rounded-lg">{asset?.name}</span>
                       <span className="text-slate-300 text-xs">›</span>
                       <span className="text-slate-500 text-[11px] font-medium">{log.equipments?.spaces?.name}</span>
                       <span className="text-slate-300 text-xs">›</span>
@@ -307,7 +307,7 @@ export default function RemindersPage() {
                     </div>
                     <div className="flex justify-between items-start mb-3">
                       <p className="text-slate-800 font-bold text-sm flex-1 pr-3">{log.detail}</p>
-                      <p className="text-blue-600 font-bold text-sm">฿{(log.cost || 0).toLocaleString()}</p>
+                      <p className="text-[#2ABFAB] font-bold text-sm">฿{(log.cost || 0).toLocaleString()}</p>
                     </div>
                     {log.image_url && (
                       <a href={log.image_url} target="_blank" rel="noopener noreferrer" className="block mt-2 relative">
@@ -319,7 +319,7 @@ export default function RemindersPage() {
                       <div className="flex items-center gap-2">
                         <p className="text-slate-400 text-[11px]">{new Date(log.service_date).toLocaleDateString('th-TH')}</p>
                         {log.brand && (
-                          <span className="bg-blue-50 text-blue-500 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-blue-100">{log.brand}</span>
+                          <span className="bg-[#E6F9F7] text-blue-500 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-[#B2EDE8]">{log.brand}</span>
                         )}
                       </div>
                       {log.next_service_date && (
@@ -365,7 +365,7 @@ export default function RemindersPage() {
               </div>
               <div>
                 <label className={labelClass}>ค่าใช้จ่าย (฿)</label>
-                <input type="number" className={`${inputClass} text-blue-600 font-bold text-lg`}
+                <input type="number" className={`${inputClass} text-[#2ABFAB] font-bold text-lg`}
                   value={logCost} onChange={e => setLogCost(e.target.value)} placeholder="0" />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -383,7 +383,7 @@ export default function RemindersPage() {
             <div className="flex gap-2 mt-6">
               <button onClick={closeLogModal} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
               <button onClick={handleSaveLog} disabled={saving}
-                className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
+                className="flex-1 py-3.5 bg-[#1B2F5E] text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
                 {saving ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
             </div>

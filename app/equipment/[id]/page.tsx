@@ -42,7 +42,7 @@ export default function EquipmentLogPage() {
   const [editLogBrand, setEditLogBrand] = useState('')
   const [editSaving, setEditSaving] = useState(false)
 
-  const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
+  const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-[#2ABFAB] transition-all font-medium text-slate-700 text-sm"
   const labelClass = "text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block"
 
   const fetchData = async () => {
@@ -146,11 +146,11 @@ export default function EquipmentLogPage() {
 
   if (loading) return (
     <div className="max-w-md mx-auto min-h-screen bg-white pb-32 font-sans">
-      <div className="h-14 bg-blue-600 mb-4" />
+      <div className="h-14 bg-[#1B2F5E] mb-4" />
       <div className="mx-5 mb-5 h-16 bg-slate-100 rounded-2xl animate-pulse" />
       <div className="px-5">
         <div className="h-16 bg-slate-100 rounded-2xl animate-pulse mb-6" />
-        <div className="space-y-4 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-blue-100">
+        <div className="space-y-4 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E6F9F7]">
           <LogCardSkeleton />
           <LogCardSkeleton />
           <LogCardSkeleton />
@@ -172,7 +172,7 @@ export default function EquipmentLogPage() {
       />
 
       {/* Info Banner */}
-      <div className="mx-5 mt-4 mb-5 bg-blue-50 rounded-2xl p-4 flex items-center gap-3 border border-blue-100">
+      <div className="mx-5 mt-4 mb-5 bg-[#E6F9F7] rounded-2xl p-4 flex items-center gap-3 border border-[#B2EDE8]">
         <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-500 shadow-sm"><WrenchIcon className="w-5 h-5" /></div>
         <div>
           <p className="text-slate-800 font-bold text-sm">{equipment?.name}</p>
@@ -188,30 +188,30 @@ export default function EquipmentLogPage() {
             <p className="text-slate-400 text-xs">{logs.length} รายการ</p>
           </div>
           <div className="flex items-center gap-3">
-            <p className="text-blue-600 font-bold text-lg">฿{logs.reduce((sum, l) => sum + (l.cost || 0), 0).toLocaleString()}</p>
+            <p className="text-[#2ABFAB] font-bold text-lg">฿{logs.reduce((sum, l) => sum + (l.cost || 0), 0).toLocaleString()}</p>
             <button onClick={() => setIsLogModalOpen(true)}
-              className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-md active:scale-90 transition-all">
+              className="w-9 h-9 bg-[#1B2F5E] rounded-xl flex items-center justify-center shadow-md active:scale-90 transition-all">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
           </div>
         </div>
 
         {/* Timeline */}
-        <div className="space-y-4 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-blue-100">
+        <div className="space-y-4 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E6F9F7]">
           {logs.map(log => (
             <div key={log.id} className="relative pl-10">
-              <div className="absolute left-[17px] top-4 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white shadow-sm z-10" />
+              <div className="absolute left-[17px] top-4 w-2.5 h-2.5 bg-[#1B2F5E] rounded-full border-2 border-white shadow-sm z-10" />
               <div className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1 pr-3">
                     <p className="font-bold text-slate-800 text-sm">{log.detail}</p>
                     {log.brand && (
-                      <span className="inline-block mt-1 bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-0.5 rounded-lg border border-blue-100">{log.brand}</span>
+                      <span className="inline-block mt-1 bg-[#E6F9F7] text-[#2ABFAB] text-[10px] font-bold px-2.5 py-0.5 rounded-lg border border-[#B2EDE8]">{log.brand}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="font-bold text-blue-600 text-sm">฿{(log.cost || 0).toLocaleString()}</p>
-                    <button onClick={() => openEditLogModal(log)} className="text-slate-300 hover:text-blue-400 transition-colors">
+                    <p className="font-bold text-[#2ABFAB] text-sm">฿{(log.cost || 0).toLocaleString()}</p>
+                    <button onClick={() => openEditLogModal(log)} className="text-slate-300 hover:text-[#2ABFAB] transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
                       </svg>
@@ -271,7 +271,7 @@ export default function EquipmentLogPage() {
             </div>
             <div className="flex gap-2 mt-5">
               <button onClick={() => setIsEditEqModalOpen(false)} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
-              <button onClick={handleUpdateEquipment} className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md">บันทึก</button>
+              <button onClick={handleUpdateEquipment} className="flex-1 py-3.5 bg-[#1B2F5E] text-white rounded-2xl font-bold text-sm shadow-md">บันทึก</button>
             </div>
           </div>
         </div>
@@ -294,7 +294,7 @@ export default function EquipmentLogPage() {
               </div>
               <div>
                 <label className={labelClass}>ค่าใช้จ่าย (฿)</label>
-                <input type="number" className={`${inputClass} text-blue-600 font-bold text-lg`}
+                <input type="number" className={`${inputClass} text-[#2ABFAB] font-bold text-lg`}
                   value={editCost} onChange={e => setEditCost(e.target.value)} placeholder="0" />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -311,7 +311,7 @@ export default function EquipmentLogPage() {
             <div className="flex gap-2 mt-6">
               <button onClick={closeEditLogModal} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
               <button onClick={handleUpdateLog} disabled={editSaving}
-                className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
+                className="flex-1 py-3.5 bg-[#1B2F5E] text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
                 {editSaving ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
             </div>
@@ -340,7 +340,7 @@ export default function EquipmentLogPage() {
 
               <div>
                 <label className={labelClass}>ค่าใช้จ่าย (฿)</label>
-                <input type="number" className={`${inputClass} text-blue-600 font-bold text-lg`}
+                <input type="number" className={`${inputClass} text-[#2ABFAB] font-bold text-lg`}
                   value={cost} onChange={e => setCost(e.target.value)} placeholder="0" />
               </div>
 
@@ -377,7 +377,7 @@ export default function EquipmentLogPage() {
             <div className="flex gap-2 mt-6">
               <button onClick={closeLogModal} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
               <button onClick={handleAddLog} disabled={uploading}
-                className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
+                className="flex-1 py-3.5 bg-[#1B2F5E] text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
                 {uploading ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
             </div>

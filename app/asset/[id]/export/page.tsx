@@ -99,7 +99,7 @@ export default function ExportPage() {
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-white">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-[#1B2F5E] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
@@ -119,7 +119,7 @@ export default function ExportPage() {
         </button>
         <h1 className="text-slate-800 font-bold text-base">Export PDF</h1>
         <button onClick={handleExport} disabled={exporting}
-          className="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl active:scale-95 transition-all disabled:opacity-60 flex items-center gap-1.5">
+          className="bg-[#1B2F5E] text-white text-xs font-bold px-4 py-2 rounded-xl active:scale-95 transition-all disabled:opacity-60 flex items-center gap-1.5">
           {exporting ? (
             <>
               <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -141,12 +141,12 @@ export default function ExportPage() {
         <div ref={printRef} className="bg-white w-full max-w-2xl shadow-sm" style={{fontFamily: 'sans-serif'}}>
 
           {/* Header */}
-          <div className="bg-blue-600 p-8 text-white">
+          <div className="bg-[#1B2F5E] p-8 text-white">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <p className="text-blue-200 text-xs font-medium mb-1">รายงานประวัติการบำรุงรักษา</p>
+                <p className="text-[#A7EDE5] text-xs font-medium mb-1">รายงานประวัติการบำรุงรักษา</p>
                 <h1 className="text-3xl font-bold">{asset?.name}</h1>
-                <p className="text-blue-200 text-sm mt-1">{assetTypeLabel} {asset?.asset_number ? `· ${asset.asset_number}` : ''}</p>
+                <p className="text-[#A7EDE5] text-sm mt-1">{assetTypeLabel} {asset?.asset_number ? `· ${asset.asset_number}` : ''}</p>
               </div>
               <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-white">
                 {asset?.image_url
@@ -160,15 +160,15 @@ export default function ExportPage() {
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-white/15 rounded-2xl p-3 text-center">
                 <p className="text-2xl font-bold">{logs.length}</p>
-                <p className="text-blue-200 text-xs mt-0.5">รายการทั้งหมด</p>
+                <p className="text-[#A7EDE5] text-xs mt-0.5">รายการทั้งหมด</p>
               </div>
               <div className="bg-white/15 rounded-2xl p-3 text-center">
                 <p className="text-2xl font-bold">฿{totalCost >= 1000 ? (totalCost/1000).toFixed(1)+'k' : totalCost.toLocaleString()}</p>
-                <p className="text-blue-200 text-xs mt-0.5">ค่าใช้จ่ายรวม</p>
+                <p className="text-[#A7EDE5] text-xs mt-0.5">ค่าใช้จ่ายรวม</p>
               </div>
               <div className="bg-white/15 rounded-2xl p-3 text-center">
                 <p className="text-2xl font-bold">฿{asset?.purchase_price?.toLocaleString() || '0'}</p>
-                <p className="text-blue-200 text-xs mt-0.5">ราคาซื้อ</p>
+                <p className="text-[#A7EDE5] text-xs mt-0.5">ราคาซื้อ</p>
               </div>
             </div>
           </div>
@@ -200,8 +200,8 @@ export default function ExportPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3 flex-1">
                         {/* No. */}
-                        <div className="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-blue-600 text-xs font-bold">{logs.length - index}</span>
+                        <div className="w-7 h-7 bg-[#E6F9F7] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-[#2ABFAB] text-xs font-bold">{logs.length - index}</span>
                         </div>
                         <div className="flex-1">
                           <p className="text-slate-800 font-bold text-sm">{log.detail}</p>
@@ -217,7 +217,7 @@ export default function ExportPage() {
                               </span>
                             )}
                             {log.brand && (
-                              <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-blue-100">
+                              <span className="bg-[#E6F9F7] text-[#2ABFAB] text-[10px] font-bold px-2 py-0.5 rounded-lg border border-[#B2EDE8]">
                                 {log.brand}
                               </span>
                             )}
@@ -225,7 +225,7 @@ export default function ExportPage() {
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-blue-600 font-bold text-sm">฿{(log.cost || 0).toLocaleString()}</p>
+                        <p className="text-[#2ABFAB] font-bold text-sm">฿{(log.cost || 0).toLocaleString()}</p>
                         <p className="text-slate-400 text-[10px] mt-0.5">
                           {new Date(log.service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </p>
@@ -242,7 +242,7 @@ export default function ExportPage() {
             {/* Total */}
             <div className="mt-6 pt-4 border-t-2 border-slate-200 flex justify-between items-center">
               <p className="text-slate-600 font-bold">ค่าใช้จ่ายรวมทั้งหมด</p>
-              <p className="text-blue-600 font-bold text-xl">฿{totalCost.toLocaleString()}</p>
+              <p className="text-[#2ABFAB] font-bold text-xl">฿{totalCost.toLocaleString()}</p>
             </div>
           </div>
 

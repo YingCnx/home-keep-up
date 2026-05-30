@@ -5,24 +5,32 @@ import { useRouter } from 'next/navigation'
 interface Props {
   title: string
   backHref?: string
+  showBack?: boolean
   rightElement?: React.ReactNode
+  leftElement?: React.ReactNode
 }
 
-export default function PageHeader({ title, backHref, rightElement }: Props) {
+export default function PageHeader({ title, backHref, showBack = true, rightElement, leftElement }: Props) {
   const router = useRouter()
 
   return (
     <div className="sticky top-0 z-20">
       {/* Blue status-bar area */}
-      <div className="bg-blue-600 pt-12 pb-5 px-5 flex items-end justify-between">
-        <button
-          onClick={() => backHref ? router.push(backHref) : router.back()}
-          className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/20 active:bg-white/30 transition-all"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
+      <div className="bg-[#1B2F5E] pt-12 pb-5 px-5 flex items-end justify-between">
+        {leftElement ? (
+          <div className="flex items-center gap-2">{leftElement}</div>
+        ) : showBack ? (
+          <button
+            onClick={() => backHref ? router.push(backHref) : router.back()}
+            className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/20 active:bg-white/30 transition-all"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+        ) : (
+          <div className="w-9 h-9" />
+        )}
 
         <h1 className="text-white font-bold text-lg truncate max-w-[180px] text-center">{title}</h1>
 
@@ -32,7 +40,7 @@ export default function PageHeader({ title, backHref, rightElement }: Props) {
       </div>
 
       {/* White rounded bottom edge */}
-      <div className="bg-blue-600">
+      <div className="bg-[#1B2F5E]">
         <div className="bg-white h-5 rounded-t-3xl" />
       </div>
     </div>

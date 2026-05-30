@@ -1,11 +1,11 @@
 {
-  "name": "Home Keep Up",
-  "short_name": "HomeKeepUp",
-  "description": "บันทึกและติดตามการบำรุงรักษาบ้านและรถ",
+  "name": "KuBaan",
+  "short_name": "KuBaan",
+  "description": "คู่บ้าน ดูแลทุกเรื่องบ้านและรถ",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#2563EB",
+  "theme_color": "#1B2F5E",
   "orientation": "portrait",
   "icons": [
     {

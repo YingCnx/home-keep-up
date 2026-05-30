@@ -1,4 +1,4 @@
-const CACHE_NAME = 'home-keep-up-v1'
+const CACHE_NAME = 'kubaan-v1'
 
 // ไฟล์ที่ cache ไว้สำหรับ offline (app shell)
 const PRECACHE_URLS = [
