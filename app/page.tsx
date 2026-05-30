@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import BottomNav from './components/BottomNav'
 import { useFeedback } from './components/Feedback'
 import { AssetIcon, HomeIcon, CheckCircleIcon } from './components/Icons'
+import { FEATURES } from './lib/features'
 import { AssetCardSkeleton, BannerSkeleton, StatsSkeleton } from './components/Skeleton'
 
 export default function Dashboard() {
@@ -238,6 +239,19 @@ export default function Dashboard() {
             </Link>
           </div>
         </div>
+
+        {/* Tip of the Day — เปิดได้เมื่อ FEATURES.tips = true */}
+        {FEATURES.tips && (
+          <div className="bg-violet-50 border border-violet-100 rounded-2xl p-4 mb-5 flex items-start gap-3">
+            <div className="w-8 h-8 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <p className="text-violet-700 font-bold text-xs mb-0.5">เคล็ดลับวันนี้</p>
+              <p className="text-violet-600 text-sm">— ยังไม่มีข้อมูล —</p>
+            </div>
+          </div>
+        )}
 
         {/* Overview Grid */}
         <h2 className="text-slate-800 font-bold text-base mb-3">ภาพรวม</h2>
