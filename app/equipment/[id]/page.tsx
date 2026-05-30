@@ -19,6 +19,7 @@ export default function EquipmentLogPage() {
   const [isLogModalOpen, setIsLogModalOpen] = useState(false)
   const [isEditEqModalOpen, setIsEditEqModalOpen] = useState(false)
 
+  // Add log
   const [detail, setDetail] = useState('')
   const [cost, setCost] = useState('')
   const [serviceDate, setServiceDate] = useState(new Date().toISOString().split('T')[0])
@@ -27,8 +28,19 @@ export default function EquipmentLogPage() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+
+  // Edit equipment
   const [editName, setEditName] = useState('')
   const [editBrand, setEditBrand] = useState('')
+
+  // Edit log
+  const [editingLog, setEditingLog] = useState<any>(null)
+  const [editDetail, setEditDetail] = useState('')
+  const [editCost, setEditCost] = useState('')
+  const [editServiceDate, setEditServiceDate] = useState('')
+  const [editNextServiceDate, setEditNextServiceDate] = useState('')
+  const [editLogBrand, setEditLogBrand] = useState('')
+  const [editSaving, setEditSaving] = useState(false)
 
   const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
   const labelClass = "text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block"
@@ -100,6 +112,38 @@ export default function EquipmentLogPage() {
     setImageFile(null); setImagePreview(null)
   }
 
+  const openEditLogModal = (log: any) => {
+    setEditingLog(log)
+    setEditDetail(log.detail || '')
+    setEditCost(log.cost?.toString() || '')
+    setEditServiceDate(log.service_date || '')
+    setEditNextServiceDate(log.next_service_date || '')
+    setEditLogBrand(log.brand || '')
+  }
+
+  const closeEditLogModal = () => {
+    setEditingLog(null)
+    setEditDetail(''); setEditCost('')
+    setEditServiceDate(''); setEditNextServiceDate(''); setEditLogBrand('')
+  }
+
+  const handleUpdateLog = async () => {
+    if (!editDetail) return toast('กรุณาระบุรายละเอียด', 'error')
+    setEditSaving(true)
+    const { error } = await supabase.from('maintenance_logs').update({
+      detail: editDetail,
+      brand: editLogBrand || null,
+      cost: parseFloat(editCost) || 0,
+      service_date: editServiceDate,
+      next_service_date: editNextServiceDate || null,
+    }).eq('id', editingLog.id)
+    setEditSaving(false)
+    if (error) return toast(error.message, 'error')
+    toast('แก้ไขแล้ว', 'success')
+    closeEditLogModal()
+    fetchData()
+  }
+
   if (loading) return (
     <div className="max-w-md mx-auto min-h-screen bg-white pb-32 font-sans">
       <div className="h-14 bg-blue-600 mb-4" />
@@ -167,6 +211,11 @@ export default function EquipmentLogPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <p className="font-bold text-blue-600 text-sm">฿{(log.cost || 0).toLocaleString()}</p>
+                    <button onClick={() => openEditLogModal(log)} className="text-slate-300 hover:text-blue-400 transition-colors">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
                     <button onClick={() => handleDeleteLog(log.id)} className="text-slate-200 hover:text-red-400 transition-colors"><XIcon className="w-4 h-4" /></button>
                   </div>
                 </div>
@@ -223,6 +272,48 @@ export default function EquipmentLogPage() {
             <div className="flex gap-2 mt-5">
               <button onClick={() => setIsEditEqModalOpen(false)} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
               <button onClick={handleUpdateEquipment} className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md">บันทึก</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Log */}
+      {editingLog && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-6 z-50">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl max-h-[85vh] overflow-y-auto">
+            <h3 className="text-slate-800 font-bold text-lg mb-1">แก้ไขรายการ</h3>
+            <p className="text-slate-400 text-xs mb-5">{new Date(editingLog.service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <div className="space-y-4">
+              <div>
+                <label className={labelClass}>รายละเอียด</label>
+                <input className={inputClass} value={editDetail} onChange={e => setEditDetail(e.target.value)} autoFocus />
+              </div>
+              <div>
+                <label className={labelClass}>ยี่ห้อ / รุ่น <span className="normal-case font-medium opacity-50">(ถ้ามี)</span></label>
+                <input className={inputClass} value={editLogBrand} onChange={e => setEditLogBrand(e.target.value)} placeholder="ยี่ห้อ/รุ่น" />
+              </div>
+              <div>
+                <label className={labelClass}>ค่าใช้จ่าย (฿)</label>
+                <input type="number" className={`${inputClass} text-blue-600 font-bold text-lg`}
+                  value={editCost} onChange={e => setEditCost(e.target.value)} placeholder="0" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelClass}>วันที่ซ่อม</label>
+                  <input type="date" className={inputClass} value={editServiceDate} onChange={e => setEditServiceDate(e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelClass}>นัดครั้งต่อไป</label>
+                  <input type="date" className={inputClass} value={editNextServiceDate} onChange={e => setEditNextServiceDate(e.target.value)} />
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <button onClick={closeEditLogModal} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
+              <button onClick={handleUpdateLog} disabled={editSaving}
+                className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
+                {editSaving ? 'กำลังบันทึก...' : 'บันทึก'}
+              </button>
             </div>
           </div>
         </div>
