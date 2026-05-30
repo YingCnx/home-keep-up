@@ -147,7 +147,7 @@ export default function ProfilePage() {
         )}
 
         {/* Expertise */}
-        {profile?.expertise?.length > 0 && (
+        {(profile?.expertise?.length ?? 0) > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {profile.expertise.map((e: string) => (
               <span key={e} className="text-[11px] bg-[#E6F9F7] text-[#2ABFAB] font-bold px-3 py-1.5 rounded-xl border border-[#B2EDE8]">{e}</span>
