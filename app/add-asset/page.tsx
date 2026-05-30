@@ -62,8 +62,12 @@ export default function AddAssetPage() {
 
     // อัปโหลดรูป (ถ้ามี) แล้วผูกกับ asset ที่เพิ่งสร้าง
     if (imageFile && inserted?.id) {
-      const url = await uploadImage(imageFile, 'assets', `${inserted.id}`)
-      if (url) await supabase.from('assets').update({ image_url: url }).eq('id', inserted.id)
+      try {
+        const url = await uploadImage(imageFile, 'assets', `${inserted.id}`)
+        if (url) await supabase.from('assets').update({ image_url: url }).eq('id', inserted.id)
+      } catch (err) {
+        toast((err as Error).message, 'error')
+      }
     }
 
     // สร้างพื้นที่พื้นฐานให้ (ถ้าเลือก)

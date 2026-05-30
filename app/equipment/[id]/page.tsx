@@ -69,7 +69,13 @@ export default function EquipmentLogPage() {
 
     let image_url = null
     if (imageFile) {
-      image_url = await uploadImage(imageFile, 'receipts', `${id}/${Date.now()}`)
+      try {
+        image_url = await uploadImage(imageFile, 'receipts', `${id}/${Date.now()}`)
+      } catch (err) {
+        toast((err as Error).message, 'error')
+        setUploading(false)
+        return
+      }
     }
 
     await supabase.from('maintenance_logs').insert([{

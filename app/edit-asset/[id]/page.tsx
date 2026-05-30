@@ -58,8 +58,12 @@ export default function EditAssetPage() {
 
     let finalImageUrl = imageUrl
     if (imageFile) {
-      const url = await uploadImage(imageFile, 'assets', `${id}`)
-      if (url) finalImageUrl = url
+      try {
+        const url = await uploadImage(imageFile, 'assets', `${id}`)
+        if (url) finalImageUrl = url
+      } catch (err) {
+        toast((err as Error).message, 'error')
+      }
     }
 
     const { error } = await supabase.from('assets').update({
