@@ -7,7 +7,7 @@ import Link from 'next/link'
 import BottomNav from '../../components/BottomNav'
 import PageHeader from '../../components/PageHeader'
 import { useFeedback } from '../../components/Feedback'
-import { AssetIcon, HomeIcon, WrenchIcon, TrashIcon, ClockIcon } from '../../components/Icons'
+import { AssetIcon, HomeIcon, WrenchIcon, TrashIcon, ClockIcon, GaugeIcon } from '../../components/Icons'
 import { SpaceCardSkeleton } from '../../components/Skeleton'
 
 export default function AssetDetailPage() {
@@ -18,8 +18,14 @@ export default function AssetDetailPage() {
   const [spaces, setSpaces] = useState<any[]>([])
   const [allLogs, setAllLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'systems' | 'history'>('systems')
+  const [activeTab, setActiveTab] = useState<'systems' | 'mileage' | 'history'>('systems')
   const [eqSearch, setEqSearch] = useState('')
+  const [mileageLogs, setMileageLogs] = useState<any[]>([])
+  const [isMileageModalOpen, setIsMileageModalOpen] = useState(false)
+  const [newMileage, setNewMileage] = useState('')
+  const [mileageDate, setMileageDate] = useState(new Date().toISOString().split('T')[0])
+  const [mileageNote, setMileageNote] = useState('')
+  const [savingMileage, setSavingMileage] = useState(false)
 
   // --- Modal States ---
   const [isSpaceModalOpen, setIsSpaceModalOpen] = useState(false)
@@ -30,32 +36,27 @@ export default function AssetDetailPage() {
   const [newEqBrand, setNewEqBrand] = useState('')
 
   const fetchData = async () => {
-  // 1. ดึงข้อมูล Asset ปกติ
   const { data: assetData } = await supabase.from('assets').select('*').eq('id', id).single()
-  
-  // 2. ดึงข้อมูล Spaces และ Equipments ปกติ
   const { data: spacesData } = await supabase.from('spaces').select('*, equipments(*)').eq('asset_id', id)
-  
-  // 3. ปรับปรุงการดึง Logs: กรองผ่าน Column ของตาราง Equipments ที่เรา Join เข้ามา
-  // เราใช้ .not('equipments', 'is', null) เพื่อกรองเอาเฉพาะ Log ที่มี Equipment อยู่ใน Asset นี้เท่านั้น
   const { data: logsData } = await supabase
     .from('maintenance_logs')
-    .select(`
-      *,
-      equipments!inner (
-        name,
-        spaces!inner (
-          name,
-          asset_id
-        )
-      )
-    `)
-    .eq('equipments.spaces.asset_id', id) // กรองเฉพาะ Asset ID ปัจจุบัน
+    .select(`*, equipments!inner(name, spaces!inner(name, asset_id))`)
+    .eq('equipments.spaces.asset_id', id)
     .order('service_date', { ascending: false })
 
   setAsset(assetData)
   setSpaces(spacesData || [])
   setAllLogs(logsData || [])
+
+  if (assetData?.type === 'vehicle') {
+    const { data: mileageData } = await supabase
+      .from('mileage_logs')
+      .select('*')
+      .eq('asset_id', id)
+      .order('recorded_at', { ascending: false })
+    setMileageLogs(mileageData || [])
+  }
+
   setLoading(false)
 }
 
@@ -77,8 +78,42 @@ export default function AssetDetailPage() {
     else { setNewEqName(''); setNewEqBrand(''); setIsEqModalOpen(false); fetchData(); }
   }
 
+  const handleAddMileage = async () => {
+    if (!newMileage) return toast('กรุณาระบุเลขไมล์', 'error')
+    const val = parseInt(newMileage)
+    if (isNaN(val) || val < 0) return toast('เลขไมล์ไม่ถูกต้อง', 'error')
+    const latest = mileageLogs[0]
+    if (latest && val < latest.mileage) {
+      if (!await confirm({ title: 'เลขไมล์น้อยกว่าครั้งก่อน?', message: `ครั้งก่อนบันทึกไว้ ${latest.mileage.toLocaleString()} km`, confirmText: 'บันทึกต่อ' })) return
+    }
+    setSavingMileage(true)
+    const { error } = await supabase.from('mileage_logs').insert([{
+      asset_id: id, mileage: val, recorded_at: mileageDate, note: mileageNote || null
+    }])
+    if (error) toast(error.message, 'error')
+    else {
+      toast('บันทึกเลขไมล์แล้ว', 'success')
+      setIsMileageModalOpen(false)
+      setNewMileage(''); setMileageNote(''); setMileageDate(new Date().toISOString().split('T')[0])
+      fetchData()
+    }
+    setSavingMileage(false)
+  }
+
+  const handleDeleteMileage = async (logId: string) => {
+    if (!await confirm({ title: 'ลบรายการนี้?', confirmText: 'ลบ', danger: true })) return
+    const { error } = await supabase.from('mileage_logs').delete().eq('id', logId)
+    if (error) toast(error.message, 'error')
+    else { toast('ลบแล้ว', 'success'); fetchData() }
+  }
+
   const handleDeleteSpace = async (spaceId: string) => {
-    if (!await confirm({ title: 'ลบพื้นที่นี้?', message: 'ข้อมูลและอุปกรณ์ข้างในจะหายทั้งหมด', confirmText: 'ลบ', danger: true })) return
+    const space = spaces.find(s => s.id === spaceId)
+    const eqCount = space?.equipments?.length || 0
+    const msg = eqCount > 0
+      ? `มีอุปกรณ์อยู่ ${eqCount} รายการ ทั้งหมดรวมถึงประวัติจะหายไปด้วย`
+      : 'พื้นที่นี้จะถูกลบออก'
+    if (!await confirm({ title: 'ลบพื้นที่นี้?', message: msg, confirmText: 'ลบ', danger: true })) return
     const { error } = await supabase.from('spaces').delete().eq('id', spaceId)
     if (error) toast(error.message, 'error')
     else { toast('ลบแล้ว', 'success'); fetchData() }
@@ -157,9 +192,15 @@ export default function AssetDetailPage() {
             className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'systems' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
             {asset?.type === 'home' ? 'ห้องและอุปกรณ์' : 'ระบบและชิ้นส่วน'}
           </button>
+          {asset?.type === 'vehicle' && (
+            <button onClick={() => setActiveTab('mileage')}
+              className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'mileage' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+              ไมล์
+            </button>
+          )}
           <button onClick={() => setActiveTab('history')}
             className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all ${activeTab === 'history' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
-            ประวัติทั้งหมด
+            ประวัติ
           </button>
         </div>
 
@@ -234,6 +275,70 @@ export default function AssetDetailPage() {
           </div>
         )}
 
+        {/* Tab: Mileage */}
+        {activeTab === 'mileage' && (
+          <div className="space-y-4">
+            {/* Summary card */}
+            {mileageLogs.length > 0 ? (
+              <div className="bg-blue-600 rounded-3xl p-5 text-white">
+                <div className="flex items-center gap-2 mb-1">
+                  <GaugeIcon className="w-4 h-4 text-blue-200" />
+                  <p className="text-blue-200 text-xs font-medium">เลขไมล์ล่าสุด</p>
+                </div>
+                <p className="text-3xl font-bold">{mileageLogs[0].mileage.toLocaleString()} <span className="text-xl font-medium">km</span></p>
+                <p className="text-blue-200 text-xs mt-1">{new Date(mileageLogs[0].recorded_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                {mileageLogs.length > 1 && (
+                  <div className="mt-3 pt-3 border-t border-white/20 flex justify-between text-xs">
+                    <span className="text-blue-200">ระยะตั้งแต่ครั้งก่อน</span>
+                    <span className="font-bold text-white">+{(mileageLogs[0].mileage - mileageLogs[1].mileage).toLocaleString()} km</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-blue-50 rounded-3xl p-6 text-center border border-blue-100">
+                <GaugeIcon className="w-10 h-10 text-blue-300 mx-auto mb-2" />
+                <p className="text-slate-500 font-bold text-sm">ยังไม่มีข้อมูลเลขไมล์</p>
+                <p className="text-slate-400 text-xs mt-1">บันทึกเลขไมล์เพื่อติดตามการใช้งาน</p>
+              </div>
+            )}
+
+            <button onClick={() => setIsMileageModalOpen(true)}
+              className="w-full py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              บันทึกเลขไมล์
+            </button>
+
+            {/* History list */}
+            {mileageLogs.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-slate-500 text-xs font-bold uppercase tracking-widest ml-1">ประวัติไมล์</h4>
+                {mileageLogs.map((log, i) => {
+                  const prev = mileageLogs[i + 1]
+                  const diff = prev ? log.mileage - prev.mileage : null
+                  return (
+                    <div key={log.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <GaugeIcon className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-slate-800 font-bold text-sm">{log.mileage.toLocaleString()} km</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-slate-400 text-[11px]">{new Date(log.recorded_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                          {diff !== null && diff >= 0 && <span className="text-green-500 text-[11px] font-bold">+{diff.toLocaleString()} km</span>}
+                        </div>
+                        {log.note && <p className="text-slate-400 text-[11px] mt-0.5 italic">{log.note}</p>}
+                      </div>
+                      <button onClick={() => handleDeleteMileage(log.id)} className="text-slate-200 hover:text-red-400 transition-all">
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Tab 2: History */}
         {activeTab === 'history' && (
           <div className="space-y-3">
@@ -291,6 +396,43 @@ export default function AssetDetailPage() {
                 className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md"
               >
                 บันทึก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Mileage */}
+      {isMileageModalOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-6 z-50">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-slate-800 font-bold text-lg mb-5">บันทึกเลขไมล์</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">เลขไมล์ (km)</label>
+                <input type="number" autoFocus
+                  className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-bold text-slate-700 text-2xl"
+                  value={newMileage} onChange={e => setNewMileage(e.target.value)} placeholder="0" />
+                {mileageLogs[0] && <p className="text-slate-400 text-xs mt-1.5 ml-1">ครั้งก่อน: {mileageLogs[0].mileage.toLocaleString()} km</p>}
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">วันที่บันทึก</label>
+                <input type="date"
+                  className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
+                  value={mileageDate} onChange={e => setMileageDate(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">หมายเหตุ <span className="normal-case font-medium opacity-50">(ถ้ามี)</span></label>
+                <input
+                  className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
+                  value={mileageNote} onChange={e => setMileageNote(e.target.value)} placeholder="เช่น ก่อนเซอร์วิส, ทริปต่างจังหวัด" />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <button onClick={() => setIsMileageModalOpen(false)} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
+              <button onClick={handleAddMileage} disabled={savingMileage}
+                className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md disabled:opacity-60">
+                {savingMileage ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
             </div>
           </div>

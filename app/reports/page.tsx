@@ -6,6 +6,7 @@ import BottomNav from '../components/BottomNav'
 import PageHeader from '../components/PageHeader'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { AssetIcon } from '../components/Icons'
+import { StatsSkeleton } from '../components/Skeleton'
 
 export default function ReportsPage() {
   const [logs, setLogs] = useState<any[]>([])
@@ -62,8 +63,13 @@ export default function ReportsPage() {
   const totalSpent = logs.reduce((sum, l) => sum + (l.cost || 0), 0)
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-slate-50">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+    <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24">
+      <div className="h-14 bg-blue-600 mb-5" />
+      <div className="px-5 space-y-4">
+        <div className="h-20 bg-white rounded-3xl animate-pulse border border-slate-100" />
+        <div className="h-52 bg-white rounded-3xl animate-pulse border border-slate-100" />
+        <StatsSkeleton />
+      </div>
     </div>
   )
 

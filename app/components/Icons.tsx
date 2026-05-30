@@ -132,6 +132,28 @@ export function BellIcon(p: IconProps) {
   )
 }
 
+export function GaugeIcon(p: IconProps) {
+  return (
+    <svg {...base(p)}>
+      <path d="M12 2a10 10 0 1 0 10 10" />
+      <path d="M12 6v2" />
+      <path d="M6.3 9.3l1.4 1.4" />
+      <path d="M4 14h2" />
+      <path d="M12 12l4-4" />
+      <circle cx="12" cy="14" r="2" />
+    </svg>
+  )
+}
+
+export function PlusIcon(p: IconProps) {
+  return (
+    <svg {...base(p)}>
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  )
+}
+
 // Helper: เลือก icon ตามประเภททรัพย์สิน
 export function AssetIcon({ type, vehicleType, className, strokeWidth }: IconProps & { type?: string; vehicleType?: string }) {
   if (type === 'home') return <HomeIcon className={className} strokeWidth={strokeWidth} />
