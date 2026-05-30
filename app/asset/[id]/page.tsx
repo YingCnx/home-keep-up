@@ -374,7 +374,7 @@ export default function AssetDetailPage() {
 
       {/* Modals */}
       {(isSpaceModalOpen || isEqModalOpen) && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-28 z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5 z-50">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="text-slate-800 font-bold text-lg mb-5">
               {isSpaceModalOpen ? (asset?.type === 'home' ? 'เพิ่มห้อง' : 'เพิ่มระบบ') : (asset?.type === 'home' ? 'เพิ่มอุปกรณ์' : 'เพิ่มชิ้นส่วน')}
@@ -404,7 +404,7 @@ export default function AssetDetailPage() {
 
       {/* Modal: Mileage */}
       {isMileageModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-6 z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5 z-50">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="text-slate-800 font-bold text-lg mb-5">บันทึกเลขไมล์</h3>
             <div className="space-y-4">

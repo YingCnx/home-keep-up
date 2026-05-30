@@ -256,7 +256,7 @@ export default function EquipmentLogPage() {
 
       {/* Modal: Edit Equipment */}
       {isEditEqModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-28 z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5 z-50">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="text-slate-800 font-bold text-lg mb-5">แก้ไขข้อมูล</h3>
             <div className="space-y-4">
@@ -279,7 +279,7 @@ export default function EquipmentLogPage() {
 
       {/* Modal: Edit Log */}
       {editingLog && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-6 z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5 z-50">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl max-h-[85vh] overflow-y-auto">
             <h3 className="text-slate-800 font-bold text-lg mb-1">แก้ไขรายการ</h3>
             <p className="text-slate-400 text-xs mb-5">{new Date(editingLog.service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
@@ -321,7 +321,7 @@ export default function EquipmentLogPage() {
 
       {/* Modal: Add Service Log */}
       {isLogModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center p-4 pb-6 z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5 z-50">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl max-h-[85vh] overflow-y-auto">
             <h3 className="text-slate-800 font-bold text-lg mb-5">บันทึกการซ่อมบำรุง</h3>
 
