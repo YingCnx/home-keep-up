@@ -243,15 +243,16 @@ export default function Dashboard() {
         <h2 className="text-slate-800 font-bold text-base mb-3">ภาพรวม</h2>
         <div className="grid grid-cols-2 gap-3 mb-6">
           <Link href="/reminders">
-            <div className="bg-amber-400 rounded-2xl p-4 relative overflow-hidden active:scale-95 transition-all">
-              <div className="absolute -right-3 -bottom-3 w-14 h-14 bg-amber-300 rounded-full opacity-50" />
+            <div className="bg-amber-500 rounded-2xl p-4 relative overflow-hidden active:scale-95 transition-all">
+              <div className="absolute -right-3 -bottom-3 w-14 h-14 bg-amber-400 rounded-full opacity-50" />
               <div className="flex justify-between items-start mb-3">
                 <p className="text-white font-bold text-sm">บำรุงรักษา</p>
                 <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
                 </div>
               </div>
-              <p className="text-white/80 text-xs">คุณมี <span className="text-white font-bold">{upcomingTasks.length}</span> รายการที่รอดำเนินการ</p>
+              <p className="text-white text-2xl font-bold">{upcomingTasks.length}</p>
+              <p className="text-amber-100 text-xs mt-0.5">รอดำเนินการ</p>
             </div>
           </Link>
 
@@ -261,37 +262,51 @@ export default function Dashboard() {
               <div className="flex justify-between items-start mb-3">
                 <p className="text-white font-bold text-sm">ค่าใช้จ่าย</p>
                 <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 </div>
               </div>
-              <p className="text-white font-bold text-lg">฿{totalExpenses >= 1000 ? (totalExpenses/1000).toFixed(1)+'k' : totalExpenses.toLocaleString()}</p>
-            </div>
-          </Link>
-
-          <Link href="/">
-            <div className="bg-blue-50 rounded-2xl p-4 relative overflow-hidden active:scale-95 transition-all border border-blue-100">
-              <div className="flex justify-between items-start mb-3">
-                <p className="text-blue-700 font-bold text-sm">รายการ</p>
-                <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-              </div>
-              <p className="text-blue-500 text-xs">คุณมี <span className="text-blue-700 font-bold">{assets.length}</span> รายการ</p>
-            </div>
-          </Link>
-
-          <Link href="/reminders">
-            <div className="bg-amber-50 rounded-2xl p-4 relative overflow-hidden active:scale-95 transition-all border border-amber-100">
-              <div className="flex justify-between items-start mb-3">
-                <p className="text-amber-700 font-bold text-sm">ด่วน</p>
-                <div className="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-              </div>
-              <p className="text-amber-500 text-xs">คุณมี <span className="text-amber-700 font-bold">{overdueCount}</span> รายการเลยกำหนด</p>
+              <p className="text-white text-2xl font-bold">฿{totalExpenses >= 1000 ? (totalExpenses/1000).toFixed(1)+'k' : totalExpenses.toLocaleString()}</p>
+              <p className="text-blue-200 text-xs mt-0.5">รวมทั้งหมด</p>
             </div>
           </Link>
         </div>
+
+        {/* Upcoming Tasks */}
+        {upcomingTasks.length > 0 && (
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-slate-800 font-bold text-base">ใกล้ถึงกำหนด</h2>
+              <Link href="/reminders" className="text-blue-600 text-xs font-bold">ดูทั้งหมด →</Link>
+            </div>
+            <div className="space-y-2">
+              {upcomingTasks.slice(0, 3).map(task => {
+                const days = getDaysLeft(task.next_service_date)
+                const isOverdue = task.isOverdue
+                return (
+                  <Link key={task.id} href="/reminders">
+                    <div className="bg-white rounded-2xl p-3.5 flex items-center gap-3 border border-slate-100 shadow-sm active:scale-95 transition-all">
+                      <div className={`w-10 h-10 rounded-xl flex-shrink-0 overflow-hidden`}>
+                        {task.asset_image
+                          ? <img src={task.asset_image} className="w-full h-full object-cover" alt="" />
+                          : <div className={`w-full h-full flex items-center justify-center ${isOverdue ? 'bg-red-50 text-red-400' : 'bg-amber-50 text-amber-500'}`}>
+                              <AssetIcon type={task.asset_type} vehicleType={task.asset_vehicle_type} className="w-5 h-5" />
+                            </div>
+                        }
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-slate-800 font-bold text-sm truncate">{task.detail}</p>
+                        <p className="text-slate-400 text-[11px] truncate">{task.asset_name} · {task.equipments?.name}</p>
+                      </div>
+                      <span className={`text-[11px] font-bold px-2.5 py-1 rounded-xl flex-shrink-0 ${isOverdue ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'}`}>
+                        {isOverdue ? `เลย ${Math.abs(days)}d` : days === 0 ? 'วันนี้!' : `${days}d`}
+                      </span>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Properties List */}
         <div className="flex justify-between items-center mb-3">
@@ -327,7 +342,7 @@ export default function Dashboard() {
                   <div className="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100">
                     {asset.image_url
                       ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
-                      : <div className={`w-full h-full flex items-center justify-center ${asset.type === 'home' ? 'bg-orange-50 text-orange-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
+                      : <div className={`w-full h-full flex items-center justify-center ${asset.type === 'home' ? 'bg-violet-50 text-violet-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-sky-50 text-sky-500' : 'bg-blue-50 text-blue-600'}`}>
                           <AssetIcon type={asset.type} vehicleType={asset.vehicle_type} className="w-7 h-7" />
                         </div>
                     }
@@ -338,7 +353,7 @@ export default function Dashboard() {
                     <p className="text-blue-600 font-bold text-sm mt-1">฿{asset.total_cost.toLocaleString()}</p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${asset.type === 'home' ? 'bg-orange-50 text-orange-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${asset.type === 'home' ? 'bg-violet-50 text-violet-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-sky-50 text-sky-500' : 'bg-blue-50 text-blue-600'}`}>
                       {asset.type === 'home' ? 'บ้าน' : asset.vehicle_type || 'รถ'}
                     </span>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>

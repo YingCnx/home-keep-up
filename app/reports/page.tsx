@@ -125,7 +125,7 @@ export default function ReportsPage() {
           <div className="space-y-3">
             {assetData.map((asset, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${asset.type === 'home' ? 'bg-orange-50 text-orange-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${asset.type === 'home' ? 'bg-violet-50 text-violet-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-sky-50 text-sky-500' : 'bg-blue-50 text-blue-600'}`}>
                   <AssetIcon type={asset.type} vehicleType={asset.vehicle_type} className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
