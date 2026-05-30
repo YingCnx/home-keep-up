@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import PageHeader from '../components/PageHeader'
 import { useFeedback } from '../components/Feedback'
+import { uploadImage } from '../lib/uploadImage'
 
 export default function AddAssetPage() {
   const router = useRouter()
@@ -15,6 +16,15 @@ export default function AddAssetPage() {
     name: '', asset_number: '', purchase_price: '',
     area_size: '', mileage_at_purchase: '', note: ''
   })
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,7 +32,7 @@ export default function AddAssetPage() {
     const { data: { user } } = await supabase.auth.getUser()
     const assetType = selector === 'home' ? 'home' : 'vehicle'
     const vehicleType = selector === 'car' ? 'รถยนต์' : selector === 'motorcycle' ? 'มอเตอร์ไซค์' : null
-    const { error } = await supabase.from('assets').insert([{
+    const { data: inserted, error } = await supabase.from('assets').insert([{
       name: formData.name, type: assetType, vehicle_type: vehicleType,
       asset_number: formData.asset_number,
       purchase_price: parseFloat(formData.purchase_price) || 0,
@@ -30,9 +40,18 @@ export default function AddAssetPage() {
       mileage_at_purchase: selector !== 'home' ? parseInt(formData.mileage_at_purchase) : null,
       note: formData.note,
       user_id: user?.id
-    }])
-    if (error) toast(error.message, 'error')
-    else { toast('เพิ่มทรัพย์สินแล้ว', 'success'); router.push('/'); router.refresh() }
+    }]).select('id').single()
+
+    if (error) { toast(error.message, 'error'); setLoading(false); return }
+
+    // อัปโหลดรูป (ถ้ามี) แล้วผูกกับ asset ที่เพิ่งสร้าง
+    if (imageFile && inserted?.id) {
+      const url = await uploadImage(imageFile, 'assets', `${inserted.id}`)
+      if (url) await supabase.from('assets').update({ image_url: url }).eq('id', inserted.id)
+    }
+
+    toast('เพิ่มทรัพย์สินแล้ว', 'success')
+    router.push('/'); router.refresh()
     setLoading(false)
   }
 
@@ -43,6 +62,26 @@ export default function AddAssetPage() {
       <PageHeader title="เพิ่มทรัพย์สิน" backHref="/" />
 
       <div className="px-5 pt-5">
+        {/* Cover Image */}
+        <div className="mb-5">
+          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">รูปภาพ</label>
+          {imagePreview ? (
+            <div className="relative rounded-2xl overflow-hidden h-40">
+              <img src={imagePreview} className="w-full h-full object-cover" alt="preview" />
+              <label className="absolute inset-0 bg-black/30 flex items-center justify-center cursor-pointer active:bg-black/40 transition-all">
+                <span className="bg-white text-slate-800 font-bold text-xs px-4 py-2 rounded-full">📷 เปลี่ยนรูป</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              </label>
+            </div>
+          ) : (
+            <label className="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl h-28 flex flex-col items-center justify-center gap-2 cursor-pointer active:bg-slate-100 transition-all">
+              <span className="text-2xl">{selector === 'home' ? '🏠' : '🚗'}</span>
+              <span className="text-slate-400 text-xs font-medium">กดเพื่อเพิ่มรูป</span>
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+            </label>
+          )}
+        </div>
+
         {/* Type Selector */}
         <div className="bg-slate-50 p-1.5 rounded-2xl flex gap-1 mb-5 border border-slate-100">
           {[
