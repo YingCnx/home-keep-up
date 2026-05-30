@@ -45,16 +45,7 @@ export async function uploadImage(
     throw new Error(`อัปโหลดรูปไม่สำเร็จ: ${error.message}`)
   }
 
-  // 5. คืน signed URL อายุ 1 ปี (ลดจาก 10 ปี เพื่อความปลอดภัย)
-  const { data: signedData, error: signedError } = await supabase.storage
-    .from(bucket)
-    .createSignedUrl(filePath, 60 * 60 * 24 * 365)
-
-  if (signedError || !signedData) {
-    // fallback: public URL (กรณี bucket เป็น public)
-    const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath)
-    return publicUrl
-  }
-
-  return signedData.signedUrl
+  // 5. คืน public URL (ไม่มีวันหมดอายุ — bucket เป็น public)
+  const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath)
+  return publicUrl
 }
