@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const [showNotif, setShowNotif] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const notifRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -116,6 +117,10 @@ export default function Dashboard() {
   const firstName = user?.user_metadata?.name?.split(' ')[0] || 'คุณ'
   const overdueCount = upcomingTasks.filter(t => t.isOverdue).length
   const dueSoon = upcomingTasks.filter(t => !t.isOverdue).length
+  const filteredAssets = assets.filter(a =>
+    a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (a.asset_number || '').toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
     <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-24">
@@ -294,8 +299,28 @@ export default function Dashboard() {
           <Link href="/add-asset" className="text-blue-600 text-xs font-bold bg-blue-50 px-3 py-1.5 rounded-full">+ เพิ่มใหม่</Link>
         </div>
 
+        {/* Search Bar */}
+        {assets.length > 0 && (
+          <div className="relative mb-3">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="ค้นหาทรัพย์สิน..."
+              className="w-full bg-slate-50 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-slate-700 border-2 border-transparent focus:border-blue-300 outline-none transition-all"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            )}
+          </div>
+        )}
+
         <div className="space-y-3">
-          {assets.map(asset => (
+          {filteredAssets.map(asset => (
             <div key={asset.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
               <Link href={`/asset/${asset.id}`} className="block">
                 <div className="flex items-center gap-4 p-4">
@@ -327,11 +352,20 @@ export default function Dashboard() {
             </div>
           ))}
 
-          {assets.length === 0 && (
+          {filteredAssets.length === 0 && (
             <div className="text-center py-16 bg-slate-50 rounded-3xl border border-dashed border-slate-200 flex flex-col items-center">
               <HomeIcon className="w-12 h-12 text-slate-300 mb-3" />
-              <p className="text-slate-400 font-medium mb-4">ยังไม่มีทรัพย์สิน</p>
-              <Link href="/add-asset" className="inline-block bg-blue-600 text-white text-sm font-bold px-6 py-2.5 rounded-full">+ เพิ่มทรัพย์สิน</Link>
+              {searchQuery ? (
+                <>
+                  <p className="text-slate-400 font-medium mb-2">ไม่พบ "{searchQuery}"</p>
+                  <button onClick={() => setSearchQuery('')} className="text-blue-600 text-sm font-bold">ล้างการค้นหา</button>
+                </>
+              ) : (
+                <>
+                  <p className="text-slate-400 font-medium mb-4">ยังไม่มีทรัพย์สิน</p>
+                  <Link href="/add-asset" className="inline-block bg-blue-600 text-white text-sm font-bold px-6 py-2.5 rounded-full">+ เพิ่มทรัพย์สิน</Link>
+                </>
+              )}
             </div>
           )}
         </div>

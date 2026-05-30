@@ -19,6 +19,7 @@ export default function AssetDetailPage() {
   const [allLogs, setAllLogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'systems' | 'history'>('systems')
+  const [eqSearch, setEqSearch] = useState('')
 
   // --- Modal States ---
   const [isSpaceModalOpen, setIsSpaceModalOpen] = useState(false)
@@ -171,7 +172,32 @@ export default function AssetDetailPage() {
                 {asset?.type === 'home' ? '+ เพิ่มพื้นที่' : '+ เพิ่มระบบ'}
               </button>
             </div>
-            {spaces.map(space => (
+
+            {/* ค้นหาอุปกรณ์ */}
+            <div className="relative">
+              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                value={eqSearch}
+                onChange={e => setEqSearch(e.target.value)}
+                placeholder="ค้นหาอุปกรณ์..."
+                className="w-full bg-slate-50 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-slate-700 border-2 border-transparent focus:border-blue-300 outline-none transition-all"
+              />
+              {eqSearch && (
+                <button onClick={() => setEqSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              )}
+            </div>
+
+            {spaces.map(space => {
+              const filteredEq = (space.equipments || []).filter((eq: any) =>
+                eq.name.toLowerCase().includes(eqSearch.toLowerCase()) ||
+                (eq.brand || '').toLowerCase().includes(eqSearch.toLowerCase())
+              )
+              if (eqSearch && filteredEq.length === 0) return null
+              return (
               <div key={space.id} className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
                 <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-50">
                   <h4 className="font-bold text-slate-700 text-sm uppercase tracking-wide">{space.name}</h4>
@@ -182,7 +208,7 @@ export default function AssetDetailPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  {space.equipments?.map((eq: any) => (
+                  {filteredEq.map((eq: any) => (
                     <div key={eq.id} className="flex items-center gap-2">
                       <Link href={`/equipment/${eq.id}`} className="flex-1">
                         <div className="bg-slate-50 rounded-2xl p-3.5 flex justify-between items-center border border-slate-100 active:bg-slate-100 transition-all">
@@ -204,7 +230,7 @@ export default function AssetDetailPage() {
                   ))}
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
 

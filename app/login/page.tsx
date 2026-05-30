@@ -29,7 +29,7 @@ export default function LoginPage() {
       {/* Bottom Login */}
       <div className="bg-white rounded-t-[2.5rem] px-8 pt-10 pb-12 shadow-lg -mt-6">
         <h2 className="text-slate-800 text-2xl font-bold mb-2">ยินดีต้อนรับ</h2>
-        <p className="text-slate-400 text-sm mb-8">จัดการทรัพย์สินของคุณในที่เดียว</p>
+        <p className="text-slate-400 text-sm mb-8">ดูแลทรัพย์สินของคุณในที่เดียว</p>
 
         <button onClick={handleGoogleLogin}
           className="w-full bg-white border-2 border-slate-100 rounded-2xl p-4 flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all mb-4">
