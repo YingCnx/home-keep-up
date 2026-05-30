@@ -11,7 +11,7 @@ import { DEFAULT_SPACES } from '../lib/defaultStructure'
 
 export default function AddAssetPage() {
   const router = useRouter()
-  const { toast } = useFeedback()
+  const { toast, confirm } = useFeedback()
   const [loading, setLoading] = useState(false)
   const [selector, setSelector] = useState<'home' | 'car' | 'motorcycle'>('home')
   const [formData, setFormData] = useState({
@@ -20,7 +20,6 @@ export default function AddAssetPage() {
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [addDefaultSpaces, setAddDefaultSpaces] = useState(true)
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -31,6 +30,20 @@ export default function AddAssetPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // 1. ยืนยันการบันทึก
+    if (!await confirm({ title: 'บันทึกทรัพย์สินนี้?', confirmText: 'บันทึก' })) return
+
+    // 2. ถามว่าต้องการพื้นที่พื้นฐานไหม
+    const assetLabel = selector === 'home' ? 'บ้าน' : 'รถ'
+    const spaceList = DEFAULT_SPACES[selector === 'home' ? 'home' : 'vehicle'].join(', ')
+    const wantDefaultSpaces = await confirm({
+      title: `สร้างพื้นที่พื้นฐานสำหรับ${assetLabel}?`,
+      message: spaceList,
+      confirmText: 'สร้างให้เลย',
+      cancelText: 'ข้ามไป',
+    })
+
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     const assetType = selector === 'home' ? 'home' : 'vehicle'
@@ -54,7 +67,7 @@ export default function AddAssetPage() {
     }
 
     // สร้างพื้นที่พื้นฐานให้ (ถ้าเลือก)
-    if (addDefaultSpaces && inserted?.id) {
+    if (wantDefaultSpaces && inserted?.id) {
       const spaces = DEFAULT_SPACES[assetType].map(name => ({ name, asset_id: inserted.id }))
       await supabase.from('spaces').insert(spaces)
     }
@@ -104,20 +117,6 @@ export default function AddAssetPage() {
             </button>
           ))}
         </div>
-
-        {/* Default spaces toggle */}
-        <button type="button" onClick={() => setAddDefaultSpaces(v => !v)}
-          className="w-full mb-5 flex items-center gap-3 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 text-left active:bg-slate-100 transition-all">
-          <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all ${addDefaultSpaces ? 'bg-blue-600' : 'bg-white border-2 border-slate-300'}`}>
-            {addDefaultSpaces && (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-slate-700 font-bold text-xs">เพิ่มพื้นที่พื้นฐานให้</p>
-            <p className="text-slate-400 text-[11px] truncate">{DEFAULT_SPACES[selector === 'home' ? 'home' : 'vehicle'].join(' · ')}</p>
-          </div>
-        </button>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
