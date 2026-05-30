@@ -337,7 +337,7 @@ export default function RemindersPage() {
               {filteredLogs.length === 0 && (
                 <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200 flex flex-col items-center">
                   <InboxIcon className="w-12 h-12 text-slate-300 mb-3" />
-                  <p className="text-slate-400 font-bold">{allLogs.length === 0 ? 'ยังไม่มีประวัติการบำรุงรักษา' : 'ไม่มีประวัติของทรัพย์สินนี้'}</p>
+                  <p className="text-slate-400 font-bold">{allLogs.length === 0 ? 'ยังไม่มีประวัติการบำรุงรักษา' : 'ไม่มีประวัติของรายการนี้'}</p>
                 </div>
               )}
             </div>

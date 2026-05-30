@@ -32,7 +32,7 @@ export default function AddAssetPage() {
     e.preventDefault()
 
     // 1. ยืนยันการบันทึก
-    if (!await confirm({ title: 'บันทึกทรัพย์สินนี้?', confirmText: 'บันทึก' })) return
+    if (!await confirm({ title: 'บันทึกรายการนี้?', confirmText: 'บันทึก' })) return
 
     // 2. ถามว่าต้องการพื้นที่พื้นฐานไหม
     const assetLabel = selector === 'home' ? 'บ้าน' : 'รถ'
@@ -76,7 +76,7 @@ export default function AddAssetPage() {
       await supabase.from('spaces').insert(spaces)
     }
 
-    toast('เพิ่มทรัพย์สินแล้ว', 'success')
+    toast('เพิ่มรายการแล้ว', 'success')
     router.push('/'); router.refresh()
     setLoading(false)
   }
@@ -85,7 +85,7 @@ export default function AddAssetPage() {
 
   return (
     <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-10 text-slate-900">
-      <PageHeader title="เพิ่มทรัพย์สิน" backHref="/" />
+      <PageHeader title="เพิ่มรายการ" backHref="/" />
 
       <div className="px-5 pt-5">
         {/* Cover Image */}
@@ -161,7 +161,7 @@ export default function AddAssetPage() {
 
           <button type="submit" disabled={loading}
             className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-base shadow-md active:scale-95 transition-all disabled:opacity-60 mt-2">
-            {loading ? 'กำลังบันทึก...' : 'บันทึกทรัพย์สิน'}
+            {loading ? 'กำลังบันทึก...' : 'บันทึกรายการ'}
           </button>
         </form>
       </div>

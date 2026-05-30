@@ -89,7 +89,7 @@ export default function EditAssetPage() {
 
   return (
     <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-10 text-slate-900">
-      <PageHeader title="แก้ไขทรัพย์สิน" />
+      <PageHeader title="แก้ไขรายการ" />
 
       <div className="px-5 pt-5 space-y-4">
 

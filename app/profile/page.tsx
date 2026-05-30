@@ -61,7 +61,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-slate-100">
             <p className="text-2xl font-bold text-slate-800">{stats.assets}</p>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">ทรัพย์สิน</p>
+            <p className="text-[10px] text-slate-400 font-medium mt-0.5">รายการ</p>
           </div>
           <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-slate-100">
             <p className="text-2xl font-bold text-slate-800">{stats.logs}</p>

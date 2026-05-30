@@ -80,9 +80,9 @@ export default function Dashboard() {
 
   const handleDelete = async (e: React.MouseEvent, id: string, name: string) => {
     e.preventDefault()
-    if (!await confirm({ title: 'ลบทรัพย์สิน?', message: `"${name}" และข้อมูลทั้งหมดจะถูกลบถาวร`, confirmText: 'ลบ', danger: true })) return
+    if (!await confirm({ title: 'ลบรายการ?', message: `"${name}" และข้อมูลทั้งหมดจะถูกลบถาวร`, confirmText: 'ลบ', danger: true })) return
     await supabase.from('assets').delete().eq('id', id)
-    toast('ลบทรัพย์สินแล้ว', 'success')
+    toast('ลบรายการแล้ว', 'success')
     fetchData()
   }
 
@@ -219,7 +219,7 @@ export default function Dashboard() {
           <div className="absolute right-4 top-4 w-16 h-16 bg-blue-400 rounded-full opacity-40" />
           <div className="relative z-10 flex justify-between items-start">
             <div>
-              <p className="text-blue-200 text-sm font-medium mb-3">ทรัพย์สินของคุณ</p>
+              <p className="text-blue-200 text-sm font-medium mb-3">รายการของคุณ</p>
               <div className="flex gap-6">
                 <div>
                   <p className="text-white text-3xl font-bold">{assets.length}</p>
@@ -271,12 +271,12 @@ export default function Dashboard() {
           <Link href="/">
             <div className="bg-blue-50 rounded-2xl p-4 relative overflow-hidden active:scale-95 transition-all border border-blue-100">
               <div className="flex justify-between items-start mb-3">
-                <p className="text-blue-700 font-bold text-sm">ทรัพย์สิน</p>
+                <p className="text-blue-700 font-bold text-sm">รายการ</p>
                 <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </div>
-              <p className="text-blue-500 text-xs">คุณมี <span className="text-blue-700 font-bold">{assets.length}</span> ทรัพย์สิน</p>
+              <p className="text-blue-500 text-xs">คุณมี <span className="text-blue-700 font-bold">{assets.length}</span> รายการ</p>
             </div>
           </Link>
 
@@ -295,7 +295,7 @@ export default function Dashboard() {
 
         {/* Properties List */}
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-slate-800 font-bold text-base">ทรัพย์สินทั้งหมด</h2>
+          <h2 className="text-slate-800 font-bold text-base">รายการทั้งหมด</h2>
           <Link href="/add-asset" className="text-blue-600 text-xs font-bold bg-blue-50 px-3 py-1.5 rounded-full">+ เพิ่มใหม่</Link>
         </div>
 
@@ -308,7 +308,7 @@ export default function Dashboard() {
             <input
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="ค้นหาทรัพย์สิน..."
+              placeholder="ค้นหารายการ..."
               className="w-full bg-slate-50 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-slate-700 border-2 border-transparent focus:border-blue-300 outline-none transition-all"
             />
             {searchQuery && (
@@ -362,8 +362,8 @@ export default function Dashboard() {
                 </>
               ) : (
                 <>
-                  <p className="text-slate-400 font-medium mb-4">ยังไม่มีทรัพย์สิน</p>
-                  <Link href="/add-asset" className="inline-block bg-blue-600 text-white text-sm font-bold px-6 py-2.5 rounded-full">+ เพิ่มทรัพย์สิน</Link>
+                  <p className="text-slate-400 font-medium mb-4">ยังไม่มีรายการ</p>
+                  <Link href="/add-asset" className="inline-block bg-blue-600 text-white text-sm font-bold px-6 py-2.5 rounded-full">+ เพิ่มรายการ</Link>
                 </>
               )}
             </div>

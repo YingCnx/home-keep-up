@@ -121,7 +121,7 @@ export default function ReportsPage() {
 
         {/* Per Asset */}
         <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
-          <p className="text-slate-800 font-bold text-sm mb-4">แยกตามทรัพย์สิน</p>
+          <p className="text-slate-800 font-bold text-sm mb-4">แยกตามรายการ</p>
           <div className="space-y-3">
             {assetData.map((asset, i) => (
               <div key={i} className="flex items-center gap-3">

@@ -147,7 +147,7 @@ export default function AssetDetailPage() {
   return (
     <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-24 text-slate-900">
 
-      <PageHeader title={asset?.name || 'ทรัพย์สิน'} backHref="/"
+      <PageHeader title={asset?.name || 'รายการ'} backHref="/"
         rightElement={
           <div className="flex items-center gap-2">
             <Link href={`/asset/${id}/export`} className="w-9 h-9 flex items-center justify-center rounded-2xl bg-white/20 active:bg-white/30 transition-all">
