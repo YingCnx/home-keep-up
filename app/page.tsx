@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import BottomNav from './components/BottomNav'
 import { useFeedback } from './components/Feedback'
 import { AssetIcon, HomeIcon, CheckCircleIcon } from './components/Icons'
+import { AssetCardSkeleton, BannerSkeleton, StatsSkeleton } from './components/Skeleton'
 
 export default function Dashboard() {
   const router = useRouter()
@@ -91,8 +92,24 @@ export default function Dashboard() {
   }
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-white">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+    <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-24 px-5 pt-12">
+      <div className="flex justify-between items-center mb-6">
+        <div className="w-20 h-20 rounded-2xl bg-slate-100 animate-pulse" />
+        <div className="flex gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-slate-100 animate-pulse" />
+          <div className="w-11 h-11 rounded-2xl bg-slate-100 animate-pulse" />
+        </div>
+      </div>
+      <div className="h-5 w-1/3 bg-slate-100 rounded-xl animate-pulse mb-2" />
+      <div className="h-7 w-1/2 bg-slate-100 rounded-xl animate-pulse mb-5" />
+      <BannerSkeleton />
+      <div className="h-5 w-1/4 bg-slate-100 rounded-xl animate-pulse mb-3" />
+      <StatsSkeleton />
+      <div className="h-5 w-1/3 bg-slate-100 rounded-xl animate-pulse mb-3" />
+      <div className="space-y-3">
+        <AssetCardSkeleton />
+        <AssetCardSkeleton />
+      </div>
     </div>
   )
 

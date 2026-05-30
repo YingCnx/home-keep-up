@@ -6,6 +6,7 @@ import BottomNav from '../components/BottomNav'
 import PageHeader from '../components/PageHeader'
 import { useFeedback } from '../components/Feedback'
 import { AssetIcon, BellIcon, CheckCircleIcon, InboxIcon, ClockIcon } from '../components/Icons'
+import { StatsSkeleton, ReminderCardSkeleton } from '../components/Skeleton'
 
 function getDaysLeft(dateStr: string) {
   const today = new Date(); today.setHours(0,0,0,0)
@@ -132,8 +133,20 @@ export default function RemindersPage() {
   const labelClass = "text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block"
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-slate-50">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+    <div className="max-w-md mx-auto min-h-screen bg-slate-50 font-sans pb-24">
+      <div className="h-14 bg-blue-600" />
+      <div className="px-5 pt-5">
+        <div className="flex gap-2 mb-5">
+          <div className="flex-1 h-9 bg-slate-200 rounded-xl animate-pulse" />
+          <div className="flex-1 h-9 bg-slate-200 rounded-xl animate-pulse" />
+        </div>
+        <StatsSkeleton />
+        <div className="space-y-3">
+          <ReminderCardSkeleton />
+          <ReminderCardSkeleton />
+          <ReminderCardSkeleton />
+        </div>
+      </div>
     </div>
   )
 

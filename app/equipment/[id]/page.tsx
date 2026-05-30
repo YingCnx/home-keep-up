@@ -7,6 +7,7 @@ import PageHeader from '../../components/PageHeader'
 import { uploadImage } from '../../lib/uploadImage'
 import { useFeedback } from '../../components/Feedback'
 import { WrenchIcon, XIcon, ClockIcon, InboxIcon, CameraIcon } from '../../components/Icons'
+import { LogCardSkeleton } from '../../components/Skeleton'
 
 export default function EquipmentLogPage() {
   const { id } = useParams()
@@ -100,8 +101,17 @@ export default function EquipmentLogPage() {
   }
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-white">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+    <div className="max-w-md mx-auto min-h-screen bg-white pb-32 font-sans">
+      <div className="h-14 bg-blue-600 mb-4" />
+      <div className="mx-5 mb-5 h-16 bg-slate-100 rounded-2xl animate-pulse" />
+      <div className="px-5">
+        <div className="h-16 bg-slate-100 rounded-2xl animate-pulse mb-6" />
+        <div className="space-y-4 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-blue-100">
+          <LogCardSkeleton />
+          <LogCardSkeleton />
+          <LogCardSkeleton />
+        </div>
+      </div>
     </div>
   )
 

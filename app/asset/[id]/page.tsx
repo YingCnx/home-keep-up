@@ -8,6 +8,7 @@ import BottomNav from '../../components/BottomNav'
 import PageHeader from '../../components/PageHeader'
 import { useFeedback } from '../../components/Feedback'
 import { AssetIcon, HomeIcon, WrenchIcon, TrashIcon, ClockIcon } from '../../components/Icons'
+import { SpaceCardSkeleton } from '../../components/Skeleton'
 
 export default function AssetDetailPage() {
   const { id } = useParams()
@@ -91,8 +92,19 @@ export default function AssetDetailPage() {
   }
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-slate-50">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+    <div className="max-w-md mx-auto min-h-screen bg-white font-sans pb-24">
+      <div className="h-14 bg-blue-600 mb-4" />
+      <div className="mx-5 mb-5 h-24 bg-blue-50 rounded-3xl animate-pulse" />
+      <div className="px-5">
+        <div className="flex gap-2 mb-5">
+          <div className="flex-1 h-9 bg-slate-100 rounded-xl animate-pulse" />
+          <div className="flex-1 h-9 bg-slate-100 rounded-xl animate-pulse" />
+        </div>
+        <div className="space-y-4">
+          <SpaceCardSkeleton />
+          <SpaceCardSkeleton />
+        </div>
+      </div>
     </div>
   )
 
