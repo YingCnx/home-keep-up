@@ -44,8 +44,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // ตรวจทุก route ยกเว้น static files, images, icons, manifest, sw.js
+  // ตรวจเฉพาะ page routes — ข้าม static files, images, manifest, sw.js ทั้งหมด
   matcher: [
-    '/((?!_next/static|_next/image|favicon|.*\\.png$|.*\\.svg$|.*\\.ico$|manifest\\.json$|sw\\.js$).*)',
+    '/((?!_next/static|_next/image|_next/|favicon\\.ico|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|js|json|woff|woff2|ttf)$).*)',
   ],
 }
