@@ -7,6 +7,7 @@ import PageHeader from '../../components/PageHeader'
 import Link from 'next/link'
 import { uploadImage } from '../../lib/uploadImage'
 import { useFeedback } from '../../components/Feedback'
+import { AssetIcon, CameraIcon } from '../../components/Icons'
 
 export default function EditAssetPage() {
   const router = useRouter()
@@ -95,13 +96,13 @@ export default function EditAssetPage() {
             <div className="relative rounded-2xl overflow-hidden h-40">
               <img src={imagePreview || imageUrl!} className="w-full h-full object-cover" alt="asset" />
               <label className="absolute inset-0 bg-black/30 flex items-center justify-center cursor-pointer active:bg-black/40 transition-all">
-                <span className="bg-white text-slate-800 font-bold text-xs px-4 py-2 rounded-full">📷 เปลี่ยนรูป</span>
+                <span className="bg-white text-slate-800 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-1.5"><CameraIcon className="w-4 h-4" /> เปลี่ยนรูป</span>
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
               </label>
             </div>
           ) : (
             <label className="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl h-28 flex flex-col items-center justify-center gap-2 cursor-pointer active:bg-slate-100 transition-all">
-              <span className="text-2xl">{type === 'home' ? '🏠' : vehicleType === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}</span>
+              <AssetIcon type={type} vehicleType={vehicleType || undefined} className="w-7 h-7 text-slate-300" />
               <span className="text-slate-400 text-xs font-medium">กดเพื่อเพิ่มรูป</span>
               <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
             </label>
@@ -110,7 +111,7 @@ export default function EditAssetPage() {
 
         {/* Type (locked) */}
         <div className="bg-slate-50 rounded-2xl px-4 py-3 flex items-center gap-3 border border-slate-100">
-          <span className="text-xl">{type === 'home' ? '🏠' : vehicleType === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}</span>
+          <AssetIcon type={type} vehicleType={vehicleType || undefined} className="w-6 h-6 text-slate-500" />
           <span className="text-slate-500 font-medium text-sm">{type === 'home' ? 'บ้าน' : vehicleType || 'รถ'}</span>
         </div>
 

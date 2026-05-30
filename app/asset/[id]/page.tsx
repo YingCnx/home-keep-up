@@ -7,6 +7,7 @@ import Link from 'next/link'
 import BottomNav from '../../components/BottomNav'
 import PageHeader from '../../components/PageHeader'
 import { useFeedback } from '../../components/Feedback'
+import { AssetIcon, HomeIcon, WrenchIcon, TrashIcon, ClockIcon } from '../../components/Icons'
 
 export default function AssetDetailPage() {
   const { id } = useParams()
@@ -120,8 +121,8 @@ export default function AssetDetailPage() {
         <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-white border border-blue-100">
           {asset?.image_url
             ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
-            : <div className="w-full h-full flex items-center justify-center text-2xl">
-                {asset?.type === 'home' ? '🏠' : asset?.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}
+            : <div className="w-full h-full flex items-center justify-center text-blue-500">
+                <AssetIcon type={asset?.type} vehicleType={asset?.vehicle_type} className="w-7 h-7" />
               </div>
           }
         </div>
@@ -163,7 +164,7 @@ export default function AssetDetailPage() {
                 <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-50">
                   <h4 className="font-bold text-slate-700 text-sm uppercase tracking-wide">{space.name}</h4>
                   <div className="flex gap-2">
-                    <button onClick={() => handleDeleteSpace(space.id)} className="text-slate-300 hover:text-red-400 text-sm">🗑️</button>
+                    <button onClick={() => handleDeleteSpace(space.id)} className="text-slate-300 hover:text-red-400"><TrashIcon className="w-4 h-4" /></button>
                     <button onClick={() => { setSelectedSpaceId(space.id); setIsEqModalOpen(true) }}
                       className="bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1.5 rounded-xl">+ เพิ่ม</button>
                   </div>
@@ -174,8 +175,8 @@ export default function AssetDetailPage() {
                       <Link href={`/equipment/${eq.id}`} className="flex-1">
                         <div className="bg-slate-50 rounded-2xl p-3.5 flex justify-between items-center border border-slate-100 active:bg-slate-100 transition-all">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-lg shadow-sm">
-                              {asset?.type === 'home' ? '🏠' : '⚙️'}
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-500 shadow-sm">
+                              {asset?.type === 'home' ? <HomeIcon className="w-5 h-5" /> : <WrenchIcon className="w-5 h-5" />}
                             </div>
                             <div>
                               <p className="text-slate-800 font-bold text-sm">{eq.name}</p>
@@ -186,7 +187,7 @@ export default function AssetDetailPage() {
                         </div>
                       </Link>
                       <button onClick={(e) => handleDeleteEquipment(e, eq.id, eq.name)}
-                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-300 hover:text-red-500 transition-all text-sm flex-shrink-0">🗑️</button>
+                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-300 hover:text-red-500 transition-all flex-shrink-0"><TrashIcon className="w-4 h-4" /></button>
                     </div>
                   ))}
                 </div>
@@ -217,7 +218,7 @@ export default function AssetDetailPage() {
                   <p className="text-slate-400 text-[11px]">{new Date(log.service_date).toLocaleDateString('th-TH')}</p>
                   {log.next_service_date && (
                     <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
-                      <span className="text-[10px]">⏳</span>
+                      <ClockIcon className="w-3 h-3 text-amber-500" />
                       <p className="text-amber-500 text-[11px] font-bold">ครั้งต่อไป: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}</p>
                     </div>
                   )}

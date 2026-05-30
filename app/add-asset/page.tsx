@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import PageHeader from '../components/PageHeader'
 import { useFeedback } from '../components/Feedback'
 import { uploadImage } from '../lib/uploadImage'
+import { HomeIcon, CarIcon, CameraIcon } from '../components/Icons'
 
 export default function AddAssetPage() {
   const router = useRouter()
@@ -69,13 +70,13 @@ export default function AddAssetPage() {
             <div className="relative rounded-2xl overflow-hidden h-40">
               <img src={imagePreview} className="w-full h-full object-cover" alt="preview" />
               <label className="absolute inset-0 bg-black/30 flex items-center justify-center cursor-pointer active:bg-black/40 transition-all">
-                <span className="bg-white text-slate-800 font-bold text-xs px-4 py-2 rounded-full">📷 เปลี่ยนรูป</span>
+                <span className="bg-white text-slate-800 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-1.5"><CameraIcon className="w-4 h-4" /> เปลี่ยนรูป</span>
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
               </label>
             </div>
           ) : (
             <label className="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl h-28 flex flex-col items-center justify-center gap-2 cursor-pointer active:bg-slate-100 transition-all">
-              <span className="text-2xl">{selector === 'home' ? '🏠' : '🚗'}</span>
+              <span className="text-slate-300">{selector === 'home' ? <HomeIcon className="w-7 h-7" /> : <CarIcon className="w-7 h-7" />}</span>
               <span className="text-slate-400 text-xs font-medium">กดเพื่อเพิ่มรูป</span>
               <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
             </label>
@@ -85,12 +86,12 @@ export default function AddAssetPage() {
         {/* Type Selector */}
         <div className="bg-slate-50 p-1.5 rounded-2xl flex gap-1 mb-5 border border-slate-100">
           {[
-            { id: 'home', label: 'บ้าน', icon: '🏠' },
-            { id: 'car', label: 'รถ', icon: '🚗' }
+            { id: 'home', label: 'บ้าน', Icon: HomeIcon },
+            { id: 'car', label: 'รถ', Icon: CarIcon }
           ].map(item => (
             <button key={item.id} type="button" onClick={() => setSelector(item.id as any)}
               className={`flex-1 py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-0.5 transition-all ${selector === item.id ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}`}>
-              <span className="text-base">{item.icon}</span>
+              <item.Icon className="w-5 h-5" />
               <span>{item.label}</span>
             </button>
           ))}

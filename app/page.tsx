@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import BottomNav from './components/BottomNav'
 import { useFeedback } from './components/Feedback'
+import { AssetIcon, HomeIcon, CheckCircleIcon } from './components/Icons'
 
 export default function Dashboard() {
   const router = useRouter()
@@ -133,21 +134,20 @@ export default function Dashboard() {
                 {/* List */}
                 <div className="max-h-72 overflow-y-auto divide-y divide-slate-50">
                   {upcomingTasks.length === 0 ? (
-                    <div className="py-10 text-center">
-                      <p className="text-2xl mb-2">🎉</p>
+                    <div className="py-10 text-center flex flex-col items-center">
+                      <CheckCircleIcon className="w-8 h-8 text-slate-300 mb-2" />
                       <p className="text-slate-400 text-sm font-medium">ไม่มีรายการแจ้งเตือน</p>
                     </div>
                   ) : (
                     upcomingTasks.map(task => {
                       const days = getDaysLeft(task.next_service_date)
                       const isOverdue = task.isOverdue
-                      const assetEmoji = task.asset_type === 'home' ? '🏠' : task.asset_vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'
                       return (
                         <div key={task.id} className="flex items-center gap-3 px-4 py-3">
                           <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0">
                             {task.asset_image
                               ? <img src={task.asset_image} className="w-full h-full object-cover" alt="" />
-                              : <div className={`w-full h-full flex items-center justify-center text-base ${isOverdue ? 'bg-red-50' : 'bg-amber-50'}`}>{assetEmoji}</div>
+                              : <div className={`w-full h-full flex items-center justify-center ${isOverdue ? 'bg-red-50 text-red-400' : 'bg-amber-50 text-amber-500'}`}><AssetIcon type={task.asset_type} vehicleType={task.asset_vehicle_type} className="w-4 h-4" /></div>
                             }
                           </div>
                           <div className="flex-1 min-w-0">
@@ -189,7 +189,7 @@ export default function Dashboard() {
 
       <div className="px-5">
         <p className="text-slate-500 text-base mb-0.5">สวัสดี,</p>
-        <h1 className="text-slate-900 text-2xl font-bold mb-5">{firstName}! 👋</h1>
+        <h1 className="text-slate-900 text-2xl font-bold mb-5">{firstName}!</h1>
 
         {/* Banner Card */}
         <div className="bg-blue-600 rounded-3xl p-5 mb-5 relative overflow-hidden">
@@ -285,8 +285,8 @@ export default function Dashboard() {
                   <div className="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100">
                     {asset.image_url
                       ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
-                      : <div className={`w-full h-full flex items-center justify-center text-2xl ${asset.type === 'home' ? 'bg-orange-50' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50' : 'bg-blue-50'}`}>
-                          {asset.type === 'home' ? '🏠' : asset.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}
+                      : <div className={`w-full h-full flex items-center justify-center ${asset.type === 'home' ? 'bg-orange-50 text-orange-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
+                          <AssetIcon type={asset.type} vehicleType={asset.vehicle_type} className="w-7 h-7" />
                         </div>
                     }
                   </div>
@@ -311,8 +311,8 @@ export default function Dashboard() {
           ))}
 
           {assets.length === 0 && (
-            <div className="text-center py-16 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-              <p className="text-4xl mb-3">🏠</p>
+            <div className="text-center py-16 bg-slate-50 rounded-3xl border border-dashed border-slate-200 flex flex-col items-center">
+              <HomeIcon className="w-12 h-12 text-slate-300 mb-3" />
               <p className="text-slate-400 font-medium mb-4">ยังไม่มีทรัพย์สิน</p>
               <Link href="/add-asset" className="inline-block bg-blue-600 text-white text-sm font-bold px-6 py-2.5 rounded-full">+ เพิ่มทรัพย์สิน</Link>
             </div>

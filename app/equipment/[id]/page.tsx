@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation'
 import PageHeader from '../../components/PageHeader'
 import { uploadImage } from '../../lib/uploadImage'
 import { useFeedback } from '../../components/Feedback'
+import { WrenchIcon, XIcon, ClockIcon, InboxIcon, CameraIcon } from '../../components/Icons'
 
 export default function EquipmentLogPage() {
   const { id } = useParams()
@@ -112,7 +113,7 @@ export default function EquipmentLogPage() {
 
       {/* Info Banner */}
       <div className="mx-5 mt-4 mb-5 bg-blue-50 rounded-2xl p-4 flex items-center gap-3 border border-blue-100">
-        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm">⚙️</div>
+        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-500 shadow-sm"><WrenchIcon className="w-5 h-5" /></div>
         <div>
           <p className="text-slate-800 font-bold text-sm">{equipment?.name}</p>
           <p className="text-slate-400 text-xs">{equipment?.spaces?.name}{equipment?.brand ? ` · ${equipment.brand}` : ''}</p>
@@ -150,7 +151,7 @@ export default function EquipmentLogPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <p className="font-bold text-blue-600 text-sm">฿{(log.cost || 0).toLocaleString()}</p>
-                    <button onClick={() => handleDeleteLog(log.id)} className="text-slate-200 hover:text-red-400 transition-colors text-sm">✕</button>
+                    <button onClick={() => handleDeleteLog(log.id)} className="text-slate-200 hover:text-red-400 transition-colors"><XIcon className="w-4 h-4" /></button>
                   </div>
                 </div>
 
@@ -167,7 +168,7 @@ export default function EquipmentLogPage() {
                   </p>
                   {log.next_service_date && (
                     <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
-                      <span className="text-[10px]">⏳</span>
+                      <ClockIcon className="w-3 h-3 text-amber-500" />
                       <p className="text-amber-500 text-[11px] font-bold">
                         ครั้งต่อไป: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                       </p>
@@ -179,8 +180,8 @@ export default function EquipmentLogPage() {
           ))}
 
           {logs.length === 0 && (
-            <div className="text-center py-16 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-              <p className="text-3xl mb-2">📋</p>
+            <div className="text-center py-16 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 flex flex-col items-center">
+              <InboxIcon className="w-10 h-10 text-slate-300 mb-2" />
               <p className="text-slate-400 font-bold text-sm">ยังไม่มีประวัติการดูแล</p>
             </div>
           )}
@@ -254,11 +255,11 @@ export default function EquipmentLogPage() {
                   <div className="relative">
                     <img src={imagePreview} className="w-full h-40 object-cover rounded-2xl border border-slate-100" alt="preview" />
                     <button onClick={() => { setImageFile(null); setImagePreview(null) }}
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center text-sm font-bold">✕</button>
+                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center"><XIcon className="w-4 h-4" /></button>
                   </div>
                 ) : (
                   <label className="w-full bg-slate-50 rounded-2xl p-5 flex flex-col items-center gap-2 cursor-pointer border-2 border-dashed border-slate-200 active:bg-slate-100 transition-all">
-                    <span className="text-2xl">📷</span>
+                    <CameraIcon className="w-7 h-7 text-slate-300" />
                     <span className="text-xs font-medium text-slate-400">กดเพื่อเลือกรูป</span>
                     <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                   </label>

@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import BottomNav from '../components/BottomNav'
 import PageHeader from '../components/PageHeader'
 import { useFeedback } from '../components/Feedback'
+import { AssetIcon, BellIcon, CheckCircleIcon, InboxIcon, ClockIcon } from '../components/Icons'
 
 function getDaysLeft(dateStr: string) {
   const today = new Date(); today.setHours(0,0,0,0)
@@ -20,6 +21,7 @@ export default function RemindersPage() {
   const [notifStatus, setNotifStatus] = useState<'default'|'granted'|'denied'>('default')
   const [filter, setFilter] = useState<'all'|'urgent'|'overdue'>('all')
   const [activeTab, setActiveTab] = useState<'reminders'|'history'>('reminders')
+  const [assetFilter, setAssetFilter] = useState<string>('all')
 
   // Modal state
   const [logModal, setLogModal] = useState<any>(null) // task ที่กำลังบันทึก
@@ -38,13 +40,13 @@ export default function RemindersPage() {
   const fetchData = async () => {
     const { data: remindersData } = await supabase
       .from('maintenance_logs')
-      .select('*, equipments(id, name, brand, spaces(name, assets(name, type, image_url)))')
+      .select('*, equipments(id, name, brand, spaces(name, assets(name, type, vehicle_type, image_url)))')
       .not('next_service_date', 'is', null)
       .order('next_service_date', { ascending: true })
 
     const { data: logsData } = await supabase
       .from('maintenance_logs')
-      .select('*, equipments(name, spaces(name, assets(name, type, image_url)))')
+      .select('*, equipments(name, spaces(name, assets(id, name, type, vehicle_type, image_url)))')
       .order('service_date', { ascending: false })
 
 
@@ -111,7 +113,20 @@ export default function RemindersPage() {
 
   const overdue = tasks.filter(t => getDaysLeft(t.next_service_date) < 0).length
   const urgent = tasks.filter(t => { const d = getDaysLeft(t.next_service_date); return d >= 0 && d <= 7 }).length
-  const totalCost = allLogs.reduce((sum, log) => sum + (log.cost || 0), 0)
+
+  // รายการทรัพย์สินที่มีประวัติ (ไม่ซ้ำ) สำหรับใช้เป็นตัวกรอง
+  const historyAssets = Array.from(
+    new Map(
+      allLogs
+        .map(l => l.equipments?.spaces?.assets)
+        .filter(a => a?.id)
+        .map(a => [a.id, a])
+    ).values()
+  )
+  const filteredLogs = assetFilter === 'all'
+    ? allLogs
+    : allLogs.filter(l => l.equipments?.spaces?.assets?.id === assetFilter)
+  const totalCost = filteredLogs.reduce((sum, log) => sum + (log.cost || 0), 0)
 
   const inputClass = "w-full bg-slate-50 rounded-2xl px-4 py-3.5 outline-none border-2 border-transparent focus:border-blue-300 transition-all font-medium text-slate-700 text-sm"
   const labelClass = "text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block"
@@ -162,7 +177,7 @@ export default function RemindersPage() {
             {notifStatus === 'default' && (
               <button onClick={requestNotification}
                 className="w-full mb-5 bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 shadow-md active:scale-95 transition-all">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🔔</div>
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0"><BellIcon className="w-5 h-5" /></div>
                 <div className="text-left flex-1">
                   <p className="font-bold text-sm">เปิดการแจ้งเตือน</p>
                   <p className="text-blue-200 text-[11px]">รับแจ้งเตือนเมื่อใกล้ถึงกำหนด</p>
@@ -172,7 +187,7 @@ export default function RemindersPage() {
             )}
             {notifStatus === 'granted' && (
               <div className="w-full mb-5 bg-green-50 border border-green-100 rounded-2xl p-4 flex items-center gap-3">
-                <span className="text-xl">✅</span>
+                <CheckCircleIcon className="w-5 h-5 text-green-600" />
                 <p className="text-green-700 font-bold text-sm">เปิดการแจ้งเตือนแล้ว</p>
               </div>
             )}
@@ -192,7 +207,6 @@ export default function RemindersPage() {
                 const isOverdue = days < 0
                 const isUrgent = days >= 0 && days <= 7
                 const asset = task.equipments?.spaces?.assets
-                const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'
                 return (
                   <div key={task.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
                     {/* Info Row */}
@@ -200,7 +214,7 @@ export default function RemindersPage() {
                       <div className={`w-11 h-11 rounded-xl flex-shrink-0 overflow-hidden border ${isOverdue ? 'border-red-100' : isUrgent ? 'border-amber-100' : 'border-blue-100'}`}>
                         {asset?.image_url
                           ? <img src={asset.image_url} className="w-full h-full object-cover" alt={asset.name} />
-                          : <div className={`w-full h-full flex items-center justify-center text-xl ${isOverdue ? 'bg-red-50' : isUrgent ? 'bg-amber-50' : 'bg-blue-50'}`}>{assetEmoji}</div>
+                          : <div className={`w-full h-full flex items-center justify-center ${isOverdue ? 'bg-red-50 text-red-400' : isUrgent ? 'bg-amber-50 text-amber-500' : 'bg-blue-50 text-blue-500'}`}><AssetIcon type={asset?.type} vehicleType={asset?.vehicle_type} className="w-5 h-5" /></div>
                         }
                       </div>
                       <div className="flex-1 min-w-0">
@@ -222,15 +236,15 @@ export default function RemindersPage() {
                     <div className="pt-3 border-t border-slate-50">
                       <button onClick={() => openLogModal(task)}
                         className="w-full py-2 rounded-xl bg-blue-600 text-white font-bold text-xs active:scale-95 transition-all shadow-sm">
-                        📋 บันทึกการซ่อม
+                        บันทึกการซ่อม
                       </button>
                     </div>
                   </div>
                 )
               })}
               {filtered.length === 0 && (
-                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200">
-                  <p className="text-4xl mb-3">🎉</p>
+                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200 flex flex-col items-center">
+                  <CheckCircleIcon className="w-12 h-12 text-slate-300 mb-3" />
                   <p className="text-slate-400 font-bold">ไม่มีรายการที่ต้องดูแล</p>
                 </div>
               )}
@@ -241,20 +255,36 @@ export default function RemindersPage() {
         {/* ---- TAB: HISTORY ---- */}
         {activeTab === 'history' && (
           <>
+            {/* Asset filter */}
+            {historyAssets.length > 0 && (
+              <div className="flex gap-2 mb-4 overflow-x-auto pb-1 -mx-5 px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <button onClick={() => setAssetFilter('all')}
+                  className={`flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all ${assetFilter === 'all' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                  ทั้งหมด
+                </button>
+                {historyAssets.map(a => (
+                  <button key={a.id} onClick={() => setAssetFilter(a.id)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 ${assetFilter === a.id ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                    <AssetIcon type={a.type} vehicleType={a.vehicle_type} className="w-4 h-4" />
+                    <span className="max-w-[100px] truncate">{a.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="flex justify-between items-center mb-4">
-              <p className="text-slate-500 text-sm font-medium">{allLogs.length} รายการ</p>
+              <p className="text-slate-500 text-sm font-medium">{filteredLogs.length} รายการ</p>
               <p className="text-blue-600 font-bold text-sm">฿{totalCost.toLocaleString()}</p>
             </div>
             <div className="space-y-3">
-              {allLogs.map(log => {
+              {filteredLogs.map(log => {
                 const asset = log.equipments?.spaces?.assets
-                const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'
                 return (
                   <div key={log.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
                     <div className="flex items-center gap-2 mb-2">
                       {asset?.image_url
                         ? <img src={asset.image_url} className="w-6 h-6 rounded-lg object-cover flex-shrink-0" alt={asset.name} />
-                        : <span className="text-base">{assetEmoji}</span>
+                        : <AssetIcon type={asset?.type} vehicleType={asset?.vehicle_type} className="w-4 h-4 text-slate-400 flex-shrink-0" />
                       }
                       <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">{asset?.name}</span>
                       <span className="text-slate-300 text-xs">›</span>
@@ -281,7 +311,7 @@ export default function RemindersPage() {
                       </div>
                       {log.next_service_date && (
                         <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg">
-                          <span className="text-[10px]">⏳</span>
+                          <ClockIcon className="w-3 h-3 text-amber-500" />
                           <p className="text-amber-500 text-[11px] font-bold">
                             ครั้งต่อไป: {new Date(log.next_service_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                           </p>
@@ -291,10 +321,10 @@ export default function RemindersPage() {
                   </div>
                 )
               })}
-              {allLogs.length === 0 && (
-                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200">
-                  <p className="text-4xl mb-3">📋</p>
-                  <p className="text-slate-400 font-bold">ยังไม่มีประวัติการบำรุงรักษา</p>
+              {filteredLogs.length === 0 && (
+                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200 flex flex-col items-center">
+                  <InboxIcon className="w-12 h-12 text-slate-300 mb-3" />
+                  <p className="text-slate-400 font-bold">{allLogs.length === 0 ? 'ยังไม่มีประวัติการบำรุงรักษา' : 'ไม่มีประวัติของทรัพย์สินนี้'}</p>
                 </div>
               )}
             </div>

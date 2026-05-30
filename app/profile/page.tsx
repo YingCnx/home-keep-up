@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import BottomNav from '../components/BottomNav'
 import PageHeader from '../components/PageHeader'
 import { useFeedback } from '../components/Feedback'
+import { LogOutIcon } from '../components/Icons'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -81,7 +82,7 @@ export default function ProfilePage() {
           </div>
           <button onClick={handleLogout}
             className="w-full px-5 py-4 flex items-center gap-3 text-red-500 active:bg-red-50 transition-colors">
-            <div className="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center text-base">🚪</div>
+            <div className="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center"><LogOutIcon className="w-4 h-4" /></div>
             <span className="font-bold text-sm">ออกจากระบบ</span>
           </button>
         </div>

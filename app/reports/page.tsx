@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import BottomNav from '../components/BottomNav'
 import PageHeader from '../components/PageHeader'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { AssetIcon } from '../components/Icons'
 
 export default function ReportsPage() {
   const [logs, setLogs] = useState<any[]>([])
@@ -118,8 +119,8 @@ export default function ReportsPage() {
           <div className="space-y-3">
             {assetData.map((asset, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${asset.type === 'home' ? 'bg-orange-50' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50' : 'bg-blue-50'}`}>
-                  {asset.type === 'home' ? '🏠' : asset.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'}
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${asset.type === 'home' ? 'bg-orange-50 text-orange-500' : asset.vehicle_type === 'มอเตอร์ไซค์' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
+                  <AssetIcon type={asset.type} vehicleType={asset.vehicle_type} className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between mb-1">

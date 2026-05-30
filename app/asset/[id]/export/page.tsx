@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useParams, useRouter } from 'next/navigation'
 import { useFeedback } from '../../../components/Feedback'
+import { AssetIcon, InboxIcon } from '../../../components/Icons'
 
 export default function ExportPage() {
   const { id } = useParams()
@@ -103,7 +104,6 @@ export default function ExportPage() {
   )
 
   const totalCost = logs.reduce((sum, l) => sum + (l.cost || 0), 0)
-  const assetEmoji = asset?.type === 'home' ? '🏠' : asset?.vehicle_type === 'มอเตอร์ไซค์' ? '🏍️' : '🚗'
   const assetTypeLabel = asset?.type === 'home' ? 'บ้าน' : asset?.vehicle_type || 'รถ'
 
   return (
@@ -148,10 +148,10 @@ export default function ExportPage() {
                 <h1 className="text-3xl font-bold">{asset?.name}</h1>
                 <p className="text-blue-200 text-sm mt-1">{assetTypeLabel} {asset?.asset_number ? `· ${asset.asset_number}` : ''}</p>
               </div>
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-white">
                 {asset?.image_url
                   ? <img src={asset.image_url} className="w-full h-full object-cover rounded-2xl" alt={asset.name} />
-                  : assetEmoji
+                  : <AssetIcon type={asset?.type} vehicleType={asset?.vehicle_type} className="w-8 h-8" />
                 }
               </div>
             </div>
@@ -189,8 +189,8 @@ export default function ExportPage() {
             <h2 className="text-slate-800 font-bold text-base mb-4">ประวัติการบำรุงรักษา</h2>
 
             {logs.length === 0 ? (
-              <div className="text-center py-12 text-slate-400">
-                <p className="text-3xl mb-2">📋</p>
+              <div className="text-center py-12 text-slate-400 flex flex-col items-center">
+                <InboxIcon className="w-10 h-10 text-slate-300 mb-2" />
                 <p>ยังไม่มีประวัติการบำรุงรักษา</p>
               </div>
             ) : (
