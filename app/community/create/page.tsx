@@ -7,7 +7,7 @@ import PageHeader from '../../components/PageHeader'
 import { useFeedback } from '../../components/Feedback'
 
 const POST_TYPES = [
-  { key: 'tip',       label: 'เคล็ดลับ',  desc: 'แชร์ความรู้ วิธีดูแล',      color: 'bg-[#E6F9F7] text-[#2ABFAB] border-blue-200' },
+  { key: 'tip',       label: 'เคล็ดลับ',  desc: 'แชร์ความรู้ วิธีดูแล',      color: 'bg-[#E6F9F7] text-[#2ABFAB] border-[#2ABFAB]' },
   { key: 'question',  label: 'คำถาม',     desc: 'ถามปัญหา ขอคำแนะนำ',        color: 'bg-amber-50 text-amber-600 border-amber-200' },
   { key: 'recommend', label: 'แนะนำ',     desc: 'แนะนำช่าง ร้านซ่อม บริการ', color: 'bg-violet-50 text-violet-600 border-violet-200' },
   { key: 'diy',       label: 'DIY',       desc: 'วิธีทำเอง ซ่อมเอง',          color: 'bg-green-50 text-green-600 border-green-200' },
