@@ -34,6 +34,8 @@ export default function AssetDetailPage() {
   const [selectedSpaceId, setSelectedSpaceId] = useState<string | null>(null)
   const [newEqName, setNewEqName] = useState('')
   const [newEqBrand, setNewEqBrand] = useState('')
+  const [editSpaceId, setEditSpaceId] = useState<string | null>(null)
+  const [editSpaceName, setEditSpaceName] = useState('')
 
   const fetchData = async () => {
   const { data: assetData } = await supabase.from('assets').select('*').eq('id', id).single()
@@ -105,6 +107,13 @@ export default function AssetDetailPage() {
     const { error } = await supabase.from('mileage_logs').delete().eq('id', logId)
     if (error) toast(error.message, 'error')
     else { toast('ลบแล้ว', 'success'); fetchData() }
+  }
+
+  const handleEditSpace = async () => {
+    if (!editSpaceName.trim() || !editSpaceId) return
+    const { error } = await supabase.from('spaces').update({ name: editSpaceName.trim() }).eq('id', editSpaceId)
+    if (error) toast(error.message, 'error')
+    else { toast('แก้ไขแล้ว', 'success'); setEditSpaceId(null); setEditSpaceName(''); fetchData() }
   }
 
   const handleDeleteSpace = async (spaceId: string) => {
@@ -243,6 +252,11 @@ export default function AssetDetailPage() {
                 <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-50">
                   <h4 className="font-bold text-slate-700 text-sm uppercase tracking-wide">{space.name}</h4>
                   <div className="flex gap-2">
+                    <button onClick={() => { setEditSpaceId(space.id); setEditSpaceName(space.name) }} className="text-slate-300 hover:text-[#2ABFAB]">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
                     <button onClick={() => handleDeleteSpace(space.id)} className="text-slate-300 hover:text-red-400"><TrashIcon className="w-4 h-4" /></button>
                     <button onClick={() => { setSelectedSpaceId(space.id); setIsEqModalOpen(true) }}
                       className="bg-[#E6F9F7] text-[#2ABFAB] text-xs font-bold px-3 py-1.5 rounded-xl">+ เพิ่ม</button>
@@ -395,6 +409,28 @@ export default function AssetDetailPage() {
               <button onClick={isSpaceModalOpen ? handleAddSpace : handleAddEquipment}
                 className="flex-1 py-3.5 bg-[#1B2F5E] text-white rounded-2xl font-bold text-sm shadow-md"
               >
+                บันทึก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Space */}
+      {editSpaceId && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-5 z-50">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-slate-800 font-bold text-lg mb-5">แก้ไขชื่อโครงสร้าง</h3>
+            <input
+              className="w-full bg-slate-50 rounded-2xl p-4 outline-none font-medium border-2 border-transparent focus:border-[#2ABFAB] transition-all text-slate-800"
+              value={editSpaceName}
+              onChange={e => setEditSpaceName(e.target.value)}
+              autoFocus
+            />
+            <div className="flex gap-2 mt-5">
+              <button onClick={() => { setEditSpaceId(null); setEditSpaceName('') }} className="flex-1 py-3.5 text-slate-400 font-bold text-sm">ยกเลิก</button>
+              <button onClick={handleEditSpace}
+                className="flex-1 py-3.5 bg-[#1B2F5E] text-white rounded-2xl font-bold text-sm shadow-md">
                 บันทึก
               </button>
             </div>
