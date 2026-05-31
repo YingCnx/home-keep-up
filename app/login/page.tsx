@@ -19,7 +19,7 @@ export default function LoginPage() {
         <div className="absolute -left-6 bottom-0 w-32 h-32 bg-[#2ABFAB] rounded-full opacity-30" />
         <div className="relative z-10 text-center">
           <div className="w-36 h-36 mx-auto mb-6">
-            <img src="/logo.png" alt="KuBaan" className="w-full h-full object-contain" />
+            <img src="/logo.png" alt="KuBaan" className="w-full h-full object-contain rounded-2xl" />
           </div>
           <h1 className="text-white text-3xl font-bold mb-2">KuBaan</h1>
           <p className="text-[#A7EDE5] text-sm font-medium">คู่บ้าน ดูแลทุกเรื่องบ้านและรถ</p>

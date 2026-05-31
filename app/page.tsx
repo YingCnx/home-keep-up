@@ -127,7 +127,7 @@ export default function Dashboard() {
 
       {/* Top Bar */}
       <div className="flex justify-between items-center px-5 pt-12 pb-4">
-        <img src="/logo.png" alt="KuBaan" className="w-28 h-28 object-contain" />
+        <img src="/logo.png" alt="KuBaan" className="w-28 h-28 object-contain rounded-2xl" />
         <div className="flex items-center gap-3">
 
           {/* Bell + Dropdown */}

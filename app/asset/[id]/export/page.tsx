@@ -176,8 +176,8 @@ export default function ExportPage() {
           {/* Generated Date */}
           <div className="px-8 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Home Keep Up" className="w-6 h-6 object-contain" />
-              <span className="text-slate-500 text-xs font-medium">Home Keep Up</span>
+              <img src="/logo.png" alt="KuBaan" className="w-6 h-6 object-contain rounded-md" />
+              <span className="text-slate-500 text-xs font-medium">KuBaan</span>
             </div>
             <p className="text-slate-400 text-xs">
               สร้างเมื่อ: {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}
