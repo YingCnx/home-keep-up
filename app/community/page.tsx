@@ -305,7 +305,7 @@ export default function CommunityPage() {
             {post.tags?.length > 0 && (
               <div className="flex gap-1.5 mt-2.5 flex-wrap">
                 {post.tags.slice(0, 4).map((tag: string) => (
-                  <button key={tag} onClick={() => handleTagClick(tag)} className="text-[10px] bg-slate-50 text-slate-400 px-2 py-0.5 rounded-lg border border-slate-100 active:bg-[#E6F9F7] active:text-blue-500 active:border-blue-200 transition-all">#{tag}</button>
+                  <button key={tag} onClick={() => handleTagClick(tag)} className="text-[10px] bg-slate-50 text-slate-400 px-2 py-0.5 rounded-lg border border-slate-100 active:bg-[#E6F9F7] active:text-[#2ABFAB] active:border-[#2ABFAB] transition-all">#{tag}</button>
                 ))}
               </div>
             )}

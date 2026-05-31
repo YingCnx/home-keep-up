@@ -249,7 +249,7 @@ export default function ExportPage() {
           {/* Footer */}
           <div className="px-8 py-4 bg-slate-50 border-t border-slate-100">
             <p className="text-slate-400 text-xs text-center">
-              เอกสารนี้สร้างโดย Home Keep Up · Every Maintenance Matters
+              เอกสารนี้สร้างโดย KuBaan · คู่บ้าน ดูแลทุกเรื่องบ้านและรถ
             </p>
           </div>
 

@@ -62,7 +62,7 @@ export default function RemindersPage() {
     setNotifStatus(permission as any)
     if (permission === 'granted') {
       if ('serviceWorker' in navigator) await navigator.serviceWorker.register('/sw.js')
-      new Notification('Home Keep Up 🏠', { body: 'เปิดการแจ้งเตือนสำเร็จแล้ว!' })
+      new Notification('KuBaan 🏠', { body: 'เปิดการแจ้งเตือนสำเร็จแล้ว!' })
     }
   }
 
